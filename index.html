@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#182329" />
     <meta name="description" content="LiverCity: una aventura musical inspirada en hechos reales de la historia de los Beatles." />
+    <meta name="google-maps-embed-key" content="" />
     <title>LiverCity</title>
   </head>
   <body>
@@ -17,16 +18,8 @@
         <button id="map-button" class="icon-button" aria-label="Abrir mapa">MAPA · M</button>
       </header>
       <div id="minimap" class="minimap" role="button" aria-label="Abrir el mapa ampliado">
-        <div class="minimap-title">LIVERCITY <span>MAPA · M</span></div>
-        <div class="map-art mini-art">
-          <div class="map-block block-west"></div><div class="map-block block-east"></div>
-          <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
-          <div class="map-road road-main"></div><div class="map-road road-cross"></div>
-          <span class="map-pin pin-club">CAVERN</span><span class="map-pin pin-shop">TIENDA</span>
-          <span class="map-player" data-map-player></span>
-          <span class="map-objective" data-map-objective hidden>◆</span>
-          <span class="map-mission" data-map-mission>!</span>
-        </div>
+        <div class="minimap-title">LIVERPOOL <span>MAPA · M</span></div>
+        <div class="map-art mini-art" data-map-surface aria-label="Mapa satelital de Liverpool"></div>
         <div class="mini-status" data-map-status>MISIÓN DISPONIBLE · BUSCA A JACK</div>
       </div>
       <div class="interaction" id="interaction" hidden><span class="keycap">E</span><span id="interaction-copy">Interactuar</span></div>
@@ -44,27 +37,41 @@
         </div>
       </div>
       <div id="map-panel" class="map-panel" hidden>
-        <div class="map-heading">LIVERCITY · DISTRITOS HISTÓRICOS <button id="map-close" class="icon-button">CERRAR ×</button></div>
+        <div class="map-heading">LIVERPOOL · LUGARES HISTÓRICOS <button id="map-close" class="icon-button">CERRAR ×</button></div>
         <div class="map-legend">
           <span><i class="legend-player"></i> TÚ</span>
           <span><i class="legend-objective"></i> OBJETIVO</span>
-          <span><i class="legend-mission"></i> MISIÓN / PERSONAJE</span>
-          <span><i class="legend-place"></i> LUGARES</span>
+          <span><i class="legend-mission"></i> JACK</span>
+          <span><i class="legend-place"></i> LUGARES EXPLORABLES</span>
         </div>
-        <div class="map-art large-art">
-          <div class="map-block block-west"></div><div class="map-block block-east"></div>
-          <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
-          <div class="map-road road-main"></div><div class="map-road road-cross"></div>
-          <span class="map-street-label street-main">AVENIDA DEL CASCO HISTÓRICO</span>
-          <span class="map-pin pin-club">CAVERN CLUB</span><span class="map-pin pin-shop">NEEDLE & GROOVE</span>
-          <span class="map-player" data-map-player></span>
-          <span class="map-objective" data-map-objective hidden>◆</span>
-          <span class="map-mission" data-map-mission>!</span>
-        </div>
+        <div class="map-art large-art" data-map-surface aria-label="Mapa satelital de Liverpool con lugares históricos"></div>
         <p data-map-status>MISIÓN DISPONIBLE · BUSCA A JACK</p>
-        <p>Marcador dorado: objetivo actual. Marcador rojo: tu posición. ¡!: misión disponible.</p>
-        <small class="map-attribution">Imágenes satelitales © Esri, Vantor, Earthstar Geographics y la comunidad GIS.</small>
+        <p>Selecciona un punto para abrir su ficha, Street View y galería curada.</p>
+        <small class="map-attribution">Imagen satelital © Esri. Datos de lugares y coordenadas geográficas documentadas.</small>
       </div>
+      <section id="location-panel" class="location-panel" hidden aria-modal="true" role="dialog" aria-labelledby="location-name">
+        <div class="location-panel-inner">
+          <header class="location-header">
+            <div><div class="eyebrow">LUGAR HISTÓRICO · LIVERCITY</div><h2 id="location-name"></h2><p id="location-address"></p></div>
+            <button id="location-close" class="icon-button" aria-label="Cerrar ficha">CERRAR ×</button>
+          </header>
+          <p id="location-description" class="location-description"></p>
+          <p id="location-history" class="location-history"></p>
+          <section class="location-section">
+            <div class="location-section-heading"><h3>VISTA DEL LUGAR</h3><a id="street-view-link" href="#" target="_blank" rel="noopener noreferrer">ABRIR EN GOOGLE MAPS ↗</a></div>
+            <div id="street-view-placeholder" class="street-view-placeholder">
+              <strong>Street View disponible al configurar Google Maps</strong>
+              <span>Podrás recorrer la panorámica aquí mismo cuando se agregue la clave de Maps Embed API. La cobertura interior depende de que Google tenga una panorámica publicada para ese local.</span>
+            </div>
+            <iframe id="street-view-frame" title="Vista Street View del lugar" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+          </section>
+          <section class="location-section">
+            <div class="location-section-heading"><h3>GALERÍA CURADA</h3><span>FOTOS PROPIAS O SELECCIONADAS POR LIVERCITY</span></div>
+            <div id="location-gallery" class="location-gallery"></div>
+          </section>
+          <a id="location-website" class="location-website" href="#" target="_blank" rel="noopener noreferrer" hidden>VISITAR SITIO OFICIAL ↗</a>
+        </div>
+      </section>
       <div class="mobile-controls" id="mobile-controls">
         <div class="dpad" aria-label="Controles de movimiento">
           <button type="button" data-move="forward" aria-label="Avanzar">▲</button>
