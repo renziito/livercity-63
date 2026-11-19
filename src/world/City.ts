@@ -224,8 +224,7 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   const stationSpawn = findStreetSpawn(new THREE.Vector3(requestedStart.x, 0, requestedStart.z), walkableSegments);
   spawnPosition.copy(stationSpawn.position);
   const nearest = stationSpawn.nearest;
-  const stop = createBusStop(group, nearest.x + nearest.nx * nearest.halfWidth + nearest.tx * 2.0, nearest.z + nearest.nz * nearest.halfWidth + nearest.tz * 2.0, Math.atan2(nearest.tx, nearest.tz));
-  stop.name = 'Lime Street Station bus stop';
+  createVictorianStation(group, spawnPosition);
   createTravelHub(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
 
   const roadGeometry = createRibbonGeometry(roads, false);
@@ -300,6 +299,97 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   window.dispatchEvent(new CustomEvent('livercity-world-ready', {
     detail: { roads: roads.length, buildings: buildings.length }
   }));
+}
+
+function createVictorianStation(parent: THREE.Group, spawn: THREE.Vector3) {
+  // A grand Victorian railway frontage inspired by London's great termini,
+  // placed in front of the player's Lime Street arrival point.
+  const station = new THREE.Group();
+  station.name = 'Lime Street Station · Victorian railway frontage';
+  station.position.set(spawn.x, 0, spawn.z - 30);
+
+  const brick = material('#8f5140');
+  const darkBrick = material('#653b32');
+  const stone = material('#d4c2a0');
+  const iron = material('#26383a', 0.58);
+  const glass = new THREE.MeshStandardMaterial({
+    color: '#9fb9b4', roughness: 0.22, metalness: 0.18,
+    transparent: true, opacity: 0.58, side: THREE.DoubleSide
+  });
+  const gold = material('#c9a15e', 0.55);
+
+  const addPart = (geometry: THREE.BufferGeometry, mat: THREE.Material, x: number, y: number, z: number) => {
+    const mesh = new THREE.Mesh(geometry, mat);
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    station.add(mesh);
+    return mesh;
+  };
+
+  // Broad masonry wings and a tall central entrance hall.
+  addBox(station, -14, 6.2, 0, 10, 12.4, 8, '#8f5140');
+  addBox(station, 14, 6.2, 0, 10, 12.4, 8, '#8f5140');
+  addBox(station, 0, 10.2, -1.8, 18.5, 4.4, 8, '#985744');
+  addBox(station, 0, 14.1, -1.8, 20, 0.55, 9, '#d4c2a0');
+  addBox(station, 0, 3.1, 3.9, 38, 0.5, 0.7, '#d4c2a0');
+
+  // Corner towers, stone cornices and parapets.
+  for (const x of [-18.2, 18.2]) {
+    addBox(station, x, 8.3, 0, 2.1, 16.6, 9.2, '#794638');
+    addBox(station, x, 16.8, 0, 2.8, 0.55, 10, '#d4c2a0');
+    addBox(station, x, 17.7, 0, 1.45, 1.3, 1.45, '#985744');
+    addPart(new THREE.ConeGeometry(1.1, 1.5, 4), stone, x, 19.1, 0).rotation.y = Math.PI / 4;
+  }
+
+  // Tall arched entrance glazing and repeated iron mullions.
+  addPart(new THREE.BoxGeometry(10.5, 7.8, 0.22), glass, 0, 7.3, 4.12);
+  for (let x = -5; x <= 5.01; x += 2.5) {
+    addPart(new THREE.BoxGeometry(0.16, 8.2, 0.3), iron, x, 7.3, 4.28);
+  }
+  addPart(new THREE.BoxGeometry(10.8, 0.2, 0.3), iron, 0, 7.4, 4.28);
+  for (const x of [-6.1, 6.1]) {
+    const column = addPart(new THREE.CylinderGeometry(0.42, 0.52, 8.4, 12), stone, x, 4.2, 4.1);
+    column.castShadow = true;
+    addBox(station, x, 8.55, 4.1, 1.35, 0.45, 1.35, '#d4c2a0');
+  }
+
+  // Round clock above the entrance.
+  addPart(new THREE.CylinderGeometry(1.28, 1.28, 0.24, 40), gold, 0, 13.05, 2.55).rotation.x = Math.PI / 2;
+  addPart(new THREE.CylinderGeometry(1.04, 1.04, 0.27, 40), material('#f0e4c8'), 0, 13.05, 2.7).rotation.x = Math.PI / 2;
+  addPart(new THREE.BoxGeometry(0.09, 0.68, 0.08), iron, 0, 13.25, 2.88);
+  addPart(new THREE.BoxGeometry(0.52, 0.08, 0.08), iron, 0.2, 13.05, 2.88);
+
+  // Long iron-and-glass train-shed roof behind the facade.
+  const roof = addPart(new THREE.BoxGeometry(34, 0.22, 25), glass, 0, 13.1, -12);
+  roof.rotation.x = -0.08;
+  for (const x of [-16, -8, 0, 8, 16]) {
+    const arch = addPart(new THREE.TorusGeometry(12.1, 0.2, 8, 36, Math.PI), iron, x, 5.4, -11);
+    arch.rotation.z = Math.PI;
+    addPart(new THREE.BoxGeometry(0.22, 13.5, 0.22), iron, x, 6.8, -11);
+  }
+  for (let z = -23; z <= -2; z += 5.2) {
+    addPart(new THREE.BoxGeometry(34, 0.12, 0.12), iron, 0, 13.25, z);
+  }
+
+  // Station name board facing the arriving player.
+  const signCanvas = document.createElement('canvas');
+  signCanvas.width = 1024;
+  signCanvas.height = 180;
+  const context = signCanvas.getContext('2d');
+  if (context) {
+    context.fillStyle = '#17272b'; context.fillRect(0, 0, 1024, 180);
+    context.strokeStyle = '#d0aa68'; context.lineWidth = 8; context.strokeRect(8, 8, 1008, 164);
+    context.fillStyle = '#f2e6c9'; context.font = 'bold 76px Georgia'; context.textAlign = 'center';
+    context.fillText('LIME STREET STATION', 512, 105);
+    context.fillStyle = '#d9b875'; context.font = '26px Arial';
+    context.fillText('LIVERPOOL  ·  EST. 1836', 512, 148);
+  }
+  const sign = addPart(new THREE.PlaneGeometry(13, 2.3), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(signCanvas) }), 0, 10.2, 4.42);
+  sign.name = 'Lime Street Station sign';
+
+  parent.add(station);
+  return station;
 }
 
 function createBusStop(parent: THREE.Group, x: number, z: number, rotation: number) {
