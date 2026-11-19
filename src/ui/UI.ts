@@ -9,7 +9,8 @@ export class UI {
   private dialogueText = document.getElementById('dialogue-text')!;
   private speaker = document.getElementById('speaker')!;
   private step = 0;
-  private dialogueLines = [...gameVariables.openingMission.dialogue];
+  // Explicit string[] prevents TypeScript from narrowing this to the literal opening lines.
+  private dialogueLines: string[] = [...gameVariables.openingMission.dialogue];
   private dialogueMode: 'offer' | 'none' = 'none';
 
   constructor(private missions: MissionManager) {
@@ -81,12 +82,12 @@ export class UI {
     const status = document.querySelectorAll<HTMLElement>('[data-map-status]');
     status.forEach((el) => {
       el.textContent = missionStage === 'available'
-        ? 'MISSION AVAILABLE · FIND JACK'
+        ? 'MISIÓN DISPONIBLE · BUSCA A JACK'
         : missionStage === 'to-shop'
-          ? 'MISSION · FIND THE INSTRUMENT'
+          ? 'MISIÓN · VE AL LUGAR INDICADO'
           : missionStage === 'return-to-jack'
-            ? 'MISSION · RETURN TO JACK'
-            : 'LEVEL MISSIONS COMPLETE';
+            ? 'MISIÓN · REGRESA CON JACK'
+            : 'MISIÓN DEL NIVEL COMPLETADA';
     });
   }
 
@@ -99,7 +100,7 @@ export class UI {
     if (this.missions.stage === 'available') {
       const mission = this.missions.currentMission;
       if (!mission) {
-        this.notify('ALL MISSIONS IN THIS LEVEL COMPLETE');
+        this.notify('¡Ya completaste todas las misiones de este nivel!');
         return;
       }
       this.dialogueMode = 'offer';
@@ -107,10 +108,10 @@ export class UI {
       const character = gameVariables.characters[mission.characterId as keyof typeof gameVariables.characters];
       this.dialogueLines = mission.id.endsWith('-meet')
         ? [...gameVariables.openingMission.dialogue]
-        : [mission.title, mission.objective, `This chapter covers ${mission.historicalDate}. Let's keep the story moving.`];
+        : [mission.title, mission.objective, `Este capítulo transcurre entre ${mission.historicalDate}. ¡Sigamos con la historia!`];
       this.speaker.textContent = character.displayName.toUpperCase();
       this.dialogueText.textContent = this.dialogueLines[0];
-      document.getElementById('dialogue-next')!.textContent = 'CONTINUE →';
+      document.getElementById('dialogue-next')!.textContent = 'CONTINUAR →';
       this.dialogue.hidden = false;
       this.setInteraction('');
       return;
@@ -119,18 +120,18 @@ export class UI {
     if (this.missions.stage === 'return-to-jack') {
       this.missions.completeFirstMission();
       this.notify(this.missions.currentMission
-        ? 'MISSION COMPLETE · NEXT MISSION AVAILABLE'
-        : 'LEVEL COMPLETE · ALL MISSIONS FINISHED');
+        ? '¡Misión completada! Tienes un nuevo encargo.'
+        : '¡Nivel completado! Terminaste todas las misiones.');
       this.refresh();
       return;
     }
 
     if (this.missions.stage === 'to-shop') {
-      this.notify('I need you to find that instrument first.');
+      this.notify('Primero tienes que cumplir el objetivo. ¡No te distraigas!');
       return;
     }
 
-    this.notify('Good to see you again.');
+    this.notify('¡Qué bueno verte de nuevo!');
   }
 
   acceptMission() {
@@ -138,7 +139,7 @@ export class UI {
     this.dialogue.hidden = true;
     this.dialogueMode = 'none';
     const target = this.missions.target;
-    this.notify(`MISSION ACCEPTED · GO TO ${target?.label.toUpperCase() ?? 'THE OBJECTIVE'}`);
+    this.notify(`MISIÓN ACEPTADA · VE A ${target?.label.toUpperCase() ?? 'TU OBJETIVO'}`);
     this.refresh();
   }
 
@@ -147,7 +148,7 @@ export class UI {
     if (this.step < this.dialogueLines.length) {
       this.dialogueText.textContent = this.dialogueLines[this.step];
       if (this.step === this.dialogueLines.length - 1) {
-        document.getElementById('dialogue-next')!.textContent = 'ACCEPT MISSION →';
+        document.getElementById('dialogue-next')!.textContent = 'ACEPTAR MISIÓN →';
       }
       return;
     }
