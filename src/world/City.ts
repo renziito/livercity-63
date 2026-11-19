@@ -158,10 +158,10 @@ export function buildCity() {
 
   // Mission-giver NPC in the central district. All interactions are explicit E actions.
   const jack = new THREE.Group();
-  jack.position.set(-26,0,-3);
+  jack.position.set(85,0,26.5);
   jack.userData.interactionId = gameVariables.characters.john.id;
   jack.userData.prompt = `E · TALK TO ${gameVariables.characters.john.displayName.toUpperCase()}`;
-  jack.userData.lookAt = new THREE.Vector3(-26,1.7,-3);
+  jack.userData.lookAt = new THREE.Vector3(85,1.7,26.5);
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.36,0.9,4,8),material('#344b50'));
   body.position.y=0.92; jack.add(body);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.29,12,10),material('#d9ad86'));
