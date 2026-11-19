@@ -1,9 +1,13 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const bounds = { south: 53.355, west: -3.02, north: 53.445, east: -2.85 };
-const query = `[out:json][timeout:240];
+const query = `[out:json][timeout:120];
 (
-  way["highway"~"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|living_street|service|pedestrian|footway|path|cycleway|steps)$"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+  way["highway"~"^(motorway|trunk|primary|secondary|tertiary)$"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+  way["highway"](53.395,-3.006,53.414,-2.975);
+  way["highway"](53.366,-2.910,53.390,-2.855);
+  way["highway"](53.378,-2.940,53.398,-2.900);
+  way["highway"](53.422,-2.930,53.443,-2.890);
   way["building"](53.395,-3.006,53.414,-2.975);
   way["building"](53.366,-2.910,53.390,-2.855);
   way["building"](53.378,-2.940,53.398,-2.900);
@@ -30,7 +34,7 @@ for (const endpoint of endpoints) {
           'user-agent': 'LiverCity/0.1 (https://github.com/renziito/livercity-63)'
         },
         body: 'data=' + encodeURIComponent(query),
-        signal: AbortSignal.timeout(90000)
+        signal: AbortSignal.timeout(60000)
       });
       if (!response.ok) throw new Error('Overpass HTTP ' + response.status);
       payload = await response.json();
