@@ -1,23 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html lang="es-PE">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#182329" />
-    <meta name="description" content="LiverCity — a music adventure inspired by real events in the history of The Beatles." />
+    <meta name="description" content="LiverCity: una aventura musical inspirada en hechos reales de la historia de los Beatles." />
     <title>LiverCity</title>
   </head>
   <body>
     <div id="app">
       <canvas id="game" aria-label="LiverCity game world"></canvas>
-      <div id="loading" class="loading"><div class="loading-mark">L<span>✦</span>C</div><p>BUILDING THE CITY...</p></div>
+      <div id="loading" class="loading"><div class="loading-mark">L<span>✦</span>C</div><p>PREPARANDO LA CIUDAD...</p></div>
       <header class="topbar">
         <div class="brand">LiverCity</div>
-        <div class="chapter">CHAPTER 01 <span>·</span> THE FIRST NOTE</div>
-        <button id="map-button" class="icon-button" aria-label="Open map">MAP · M</button>
+        <div class="chapter">CAPÍTULO 01 <span>·</span> LA PRIMERA NOTA</div>
+        <button id="map-button" class="icon-button" aria-label="Abrir mapa">MAPA · M</button>
       </header>
       <div id="minimap" class="minimap" role="button" aria-label="Open large map">
-        <div class="minimap-title">LIVERCITY <span>MAP · M</span></div>
+        <div class="minimap-title">LIVERCITY <span>MAPA · M</span></div>
         <div class="map-art mini-art">
           <div class="map-block block-west"></div><div class="map-block block-east"></div>
           <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
@@ -27,65 +27,65 @@
           <span class="map-objective" data-map-objective hidden>◆</span>
           <span class="map-mission" data-map-mission>!</span>
         </div>
-        <div class="mini-status" data-map-status>MISSION AVAILABLE · FIND JACK</div>
+        <div class="mini-status" data-map-status>MISIÓN DISPONIBLE · BUSCA A JACK</div>
       </div>
       <div class="interaction" id="interaction" hidden><span class="keycap">E</span><span id="interaction-copy">Talk</span></div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <div class="bottom-left">
-        <div class="location-label">LIVERCITY <span>—</span> HISTORIC DISTRICTS</div>
-        <div class="hint" id="hint">WASD / ARROWS move · Mouse look · E interact · Shift run</div>
+        <div class="location-label">LIVERCITY <span>—</span> DISTRITOS HISTÓRICOS</div>
+        <div class="hint" id="hint">WASD / FLECHAS moverse · Mouse mirar · E interactuar · Shift correr</div>
       </div>
-      <div class="bottom-right"><div class="cash">£<span id="cash">0</span></div><div class="rep">REPUTATION <b id="rep">0</b></div></div>
+      <div class="bottom-right"><div class="cash">£<span id="cash">0</span></div><div class="rep">REPUTACIÓN <b id="rep">0</b></div></div>
       <div id="dialogue" class="dialogue" hidden>
         <div class="dialogue-inner">
           <div class="eyebrow" id="speaker">JACK LENNER</div>
           <p id="dialogue-text"></p>
-          <button id="dialogue-next" class="primary-button">CONTINUE →</button>
+          <button id="dialogue-next" class="primary-button">CONTINUAR →</button>
         </div>
       </div>
       <div id="map-panel" class="map-panel" hidden>
-        <div class="map-heading">LIVERCITY · HISTORIC DISTRICTS <button id="map-close" class="icon-button">CLOSE ×</button></div>
+        <div class="map-heading">LIVERCITY · DISTRITOS HISTÓRICOS <button id="map-close" class="icon-button">CERRAR ×</button></div>
         <div class="map-legend">
-          <span><i class="legend-player"></i> YOU</span>
-          <span><i class="legend-objective"></i> OBJECTIVE</span>
-          <span><i class="legend-mission"></i> MISSION / NPC</span>
-          <span><i class="legend-place"></i> PLACES</span>
+          <span><i class="legend-player"></i> TÚ</span>
+          <span><i class="legend-objective"></i> OBJETIVO</span>
+          <span><i class="legend-mission"></i> MISIÓN / PERSONAJE</span>
+          <span><i class="legend-place"></i> LUGARES</span>
         </div>
         <div class="map-art large-art">
           <div class="map-block block-west"></div><div class="map-block block-east"></div>
           <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
           <div class="map-road road-main"></div><div class="map-road road-cross"></div>
-          <span class="map-street-label street-main">OLD QUARTER ROAD</span>
+          <span class="map-street-label street-main">AVENIDA DEL CASCO HISTÓRICO</span>
           <span class="map-pin pin-club">CAVERN CLUB</span><span class="map-pin pin-shop">NEEDLE & GROOVE</span>
           <span class="map-player" data-map-player></span>
           <span class="map-objective" data-map-objective hidden>◆</span>
           <span class="map-mission" data-map-mission>!</span>
         </div>
-        <p data-map-status>MISSION AVAILABLE · FIND JACK</p>
-        <p>Gold marker: current objective. Red marker: your position. !: mission available.</p>\n        <small class="map-attribution">Satellite imagery © Esri, Vantor, Earthstar Geographics, and the GIS User Community.</small>
+        <p data-map-status>MISIÓN DISPONIBLE · BUSCA A JACK</p>
+        <p>Marcador dorado: objetivo actual. Marcador rojo: tu posición. ¡!: misión disponible.</p>\n        <small class="map-attribution">Imágenes satelitales © Esri, Vantor, Earthstar Geographics y la comunidad GIS.</small>
       </div>
       <div class="mobile-controls" id="mobile-controls">
-        <div class="dpad" aria-label="Movement controls">
-          <button type="button" data-move="forward" aria-label="Move forward">▲</button>
+        <div class="dpad" aria-label="Controles de movimiento">
+          <button type="button" data-move="forward" aria-label="Avanzar">▲</button>
           <div>
-            <button type="button" data-move="left" aria-label="Move left">◀</button>
-            <button type="button" data-move="back" aria-label="Move backward">▼</button>
-            <button type="button" data-move="right" aria-label="Move right">▶</button>
+            <button type="button" data-move="left" aria-label="Mover a la izquierda">◀</button>
+            <button type="button" data-move="back" aria-label="Retroceder">▼</button>
+            <button type="button" data-move="right" aria-label="Mover a la derecha">▶</button>
           </div>
         </div>
         <div class="mobile-actions">
-          <button type="button" data-action="run">RUN</button>
+          <button type="button" data-action="run">CORRER</button>
           <button type="button" data-action="interact">E</button>
         </div>
-        <div class="look-zone" id="look-zone" aria-label="Drag to rotate camera"></div>
+        <div class="look-zone" id="look-zone" aria-label="Arrastra para girar la cámara"></div>
       </div>
       <div id="start-screen" class="start-screen">
         <div class="start-content">
-          <div class="start-kicker">A NEW SOUND IS RISING</div>
+          <div class="start-kicker">ESTÁ NACIENDO UN NUEVO SONIDO</div>
           <div class="start-logo">LiverCity</div>
-          <p>A city of music. A night to remember.<br />Your story starts here.</p>
-          <button id="start-button" class="primary-button">ENTER THE CITY <span>→</span></button>
-          <small>INSPIRED BY REAL EVENTS</small>
+          <p>Una ciudad llena de música. Una noche inolvidable.<br />Tu historia empieza aquí.</p>
+          <button id="start-button" class="primary-button">ENTRAR A LIVERCITY <span>→</span></button>
+          <small>INSPIRADO EN HECHOS REALES</small>
         </div>
       </div>
     </div>
