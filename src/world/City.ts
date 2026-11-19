@@ -108,16 +108,23 @@ export function buildCity() {
   // Urban blocks and residential streets. Blocks are deliberately varied rather than a perfect grid.
   const colors = ['#b9785e','#c8b18b','#8b9990','#aa9b83','#9f6d59','#c4bba6'];
   let seed = 0;
-  for (let x = -68; x <= 108; x += 15) {
-    for (let z = -88; z <= 88; z += 15) {
-      if (Math.abs(x) < 18 && Math.abs(z) < 18) continue;
-      if ((x < -72) || (x > 104)) continue;
+  const landmarkClearings: Array<[number,number]> = [
+    [-26,-9],[-38,8],[-67,-28],[-53,-40],[-44,-42],[8,-5],
+    [40,20],[85,35],[82,43],[92,29],[55,45],[45,-50]
+  ];
+  // Put building blocks between the main road corridors and leave clear approaches
+  // around every historic landmark so their E interaction markers remain reachable.
+  for (let x = -40; x <= 80; x += 30) {
+    for (let z = -67; z <= 83; z += 30) {
       const jitterX = ((seed * 17) % 5) - 2;
       const jitterZ = ((seed * 11) % 5) - 2;
+      const bx = x + jitterX;
+      const bz = z + jitterZ;
+      if (landmarkClearings.some(([lx,lz]) => Math.abs(bx-lx) < 12 && Math.abs(bz-lz) < 12)) continue;
       const w = 7 + (seed % 3);
       const d = 7 + ((seed + 1) % 3);
       const h = 6 + (seed % 4) * 1.5;
-      const result = makeBuilding(group,x+jitterX,z+jitterZ,w,d,h,colors[seed%colors.length],seed++);
+      const result = makeBuilding(group,bx,bz,w,d,h,colors[seed%colors.length],seed++);
       colliders.push(result.collider);
     }
   }
