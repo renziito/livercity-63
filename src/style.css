@@ -419,3 +419,7 @@ html, body, #app { min-height: 100%; height: 100%; }
   .topbar-actions { gap:5px; }
   #station-button,#map-button { padding:8px 9px; font-size:8px; }
 }
+
+
+/* Minimap temporarily disabled while movement controls are being tested. */
+#minimap, #map-button { display: none !important; }
