@@ -58,8 +58,8 @@ export class UI {
 
   updateMap(position: { x: number; z: number }, target: MapTarget, missionStage: string) {
     document.querySelectorAll<HTMLElement>('[data-map-player]').forEach((player) => {
-      const x = ((position.x + 27) / 54) * 100;
-      const y = ((position.z + 32) / 64) * 100;
+      const x = ((position.x + 130) / 260) * 100;
+      const y = ((position.z + 110) / 220) * 100;
       player.style.left = `${Math.max(2, Math.min(98, x))}%`;
       player.style.top = `${Math.max(2, Math.min(98, y))}%`;
     });
@@ -70,8 +70,8 @@ export class UI {
         return;
       }
       marker.hidden = false;
-      marker.style.left = `${((target.x + 27) / 54) * 100}%`;
-      marker.style.top = `${((target.z + 32) / 64) * 100}%`;
+      marker.style.left = `${((target.x + 130) / 260) * 100}%`;
+      marker.style.top = `${((target.z + 110) / 220) * 100}%`;
       marker.title = target.label;
     });
 
@@ -86,7 +86,7 @@ export class UI {
           ? 'MISSION · FIND THE INSTRUMENT'
           : missionStage === 'return-to-jack'
             ? 'MISSION · RETURN TO JACK'
-            : 'NO ACTIVE MISSION';
+            : 'LEVEL MISSIONS COMPLETE';
     });
   }
 
