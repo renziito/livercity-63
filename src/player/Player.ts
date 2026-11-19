@@ -8,6 +8,7 @@ export class Player {
   private keys = new Set<string>();
   private enabled = false;
   private cameraYaw = 0;
+  private pointerLockRequested = false;
   private running = false;
   private moveTouch = new Set<MoveKey>();
   private lookPointer: number | null = null;
@@ -62,11 +63,18 @@ export class Player {
     });
 
     const canvas = document.getElementById('game') as HTMLCanvasElement;
+    // Desktop: click the game area once to capture the mouse, then move horizontally to orbit.
     canvas.addEventListener('click', () => {
-      if (this.enabled && window.innerWidth > 700) canvas.requestPointerLock?.();
+      if (!this.enabled || window.innerWidth <= 700 || document.pointerLockElement === canvas) return;
+      canvas.requestPointerLock?.();
+    });
+    document.addEventListener('pointerlockchange', () => {
+      this.pointerLockRequested = document.pointerLockElement === canvas;
     });
     document.addEventListener('mousemove', (event) => {
-      if (document.pointerLockElement === canvas) this.cameraYaw -= event.movementX * 0.0025;
+      if (this.enabled && document.pointerLockElement === canvas) {
+        this.cameraYaw -= event.movementX * 0.003;
+      }
     });
 
     this.bindMobile();
@@ -143,17 +151,26 @@ export class Player {
     const left = this.keys.has('a') || this.keys.has('arrowleft') || this.moveTouch.has('left');
     const right = this.keys.has('d') || this.keys.has('arrowright') || this.moveTouch.has('right');
     const isRunning = this.keys.has('shift') || this.running;
-    const movement = new THREE.Vector3(Number(right) - Number(left), 0, Number(back) - Number(forward));
+
+    // Movement is camera-relative: W/S move along the view direction and A/D strafe.
+    // Keep cameraYaw independent from the character's facing so held keys cannot add
+    // another 90 degrees every frame (the previous source of spinning/incorrect movement).
+    const localX = Number(right) - Number(left);
+    const localZ = Number(back) - Number(forward);
+    const movement = new THREE.Vector3(localX, 0, localZ);
 
     if (movement.lengthSq() > 0) {
       movement.normalize();
-      // Forward is always relative to the current camera/player heading.
-      // The camera yaw is applied once here; camera follow uses the resulting player heading.
-      const angle = this.group.rotation.y + this.cameraYaw + Math.atan2(movement.x, -movement.z);
+      const sin = Math.sin(this.cameraYaw);
+      const cos = Math.cos(this.cameraYaw);
+      const worldX = movement.x * cos + movement.z * sin;
+      const worldZ = -movement.x * sin + movement.z * cos;
       const distance = (isRunning ? 7.2 : 4.2) * dt;
-      this.moveWithCollisions(Math.sin(angle) * distance, -Math.cos(angle) * distance);
-      this.group.rotation.y = angle;
-      this.cameraYaw = 0;
+      this.moveWithCollisions(worldX * distance, worldZ * distance);
+
+      // Face the direction of travel while the camera remains independently controllable.
+      const heading = Math.atan2(worldX, -worldZ);
+      this.group.rotation.y = heading;
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
 
@@ -180,12 +197,11 @@ export class Player {
   }
 
   private updateCamera(dt: number) {
-    // The character faces local -Z, so the camera must stay behind it on +Z.
-    // This keeps the visible camera direction and W/ArrowUp movement aligned.
+    // Camera orbit follows mouse/touch yaw; it does not get overwritten by strafing.
     const offset = new THREE.Vector3(
-      Math.sin(this.group.rotation.y) * 6.5,
+      Math.sin(this.cameraYaw) * 6.5,
       3.6,
-      Math.cos(this.group.rotation.y) * 6.5
+      Math.cos(this.cameraYaw) * 6.5
     );
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
