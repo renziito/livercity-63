@@ -20,6 +20,7 @@ export type LocationInfo = {
   streetViewHeading: number;
   streetViewPitch: number;
   gallery: CuratedPhoto[];
+  world: { x: number; z: number };
   website?: string;
 };
 
