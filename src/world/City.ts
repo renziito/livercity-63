@@ -100,6 +100,7 @@ function addStreetFurniture(parent: THREE.Group, x: number, z: number, rotation:
 }
 
 function addDistrict(parent: THREE.Group, centerX: number, centerZ: number, rotation: number, seed: number, colliders: THREE.Box3[]) {
+  const colliderStart = colliders.length;
   const district = new THREE.Group();
   district.position.set(centerX, 0, centerZ);
   district.rotation.y = rotation;
@@ -151,6 +152,12 @@ function addDistrict(parent: THREE.Group, centerX: number, centerZ: number, rota
         addStreetFurniture(district, x, z, rotation, seed + i + j);
       }
     }
+  }
+
+  // Convert neighbourhood-local collision boxes into world coordinates, including district rotation.
+  district.updateMatrixWorld(true);
+  for (let i = colliderStart; i < colliders.length; i++) {
+    colliders[i].applyMatrix4(district.matrixWorld);
   }
 }
 
