@@ -58,22 +58,31 @@ export class Player {
       ArrowLeft: 'arrowleft', ArrowRight: 'arrowright',
       ShiftLeft: 'shift', ShiftRight: 'shift'
     };
-    const normalizeKey = (event: KeyboardEvent) =>
-      movementKeys[event.code] ?? event.key.toLowerCase();
+    const movementKeySet = new Set(['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'shift']);
+    const normalizeKey = (event: KeyboardEvent) => {
+      const byCode = movementKeys[event.code];
+      if (byCode) return byCode;
+      const byKey = event.key.toLowerCase();
+      return movementKeySet.has(byKey) ? byKey : '';
+    };
 
-    // Capture movement keys at document level so they work even when the
-    // canvas does not have keyboard focus or the browser has other shortcuts.
-    document.addEventListener('keydown', (event) => {
+    // Listen on window in capture phase: this works regardless of canvas focus,
+    // pointer lock state, or which element currently owns keyboard focus.
+    const onKeyDown = (event: KeyboardEvent) => {
       const key = normalizeKey(event);
-      if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+      if (!key) return;
+      event.preventDefault();
+      this.keys.add(key);
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      const key = normalizeKey(event);
+      if (key) {
         event.preventDefault();
-        event.stopPropagation();
-        this.keys.add(key);
+        this.keys.delete(key);
       }
-    }, { capture: true, passive: false });
-    document.addEventListener('keyup', (event) => {
-      this.keys.delete(normalizeKey(event));
-    }, { capture: true });
+    };
+    window.addEventListener('keydown', onKeyDown, { capture: true, passive: false });
+    window.addEventListener('keyup', onKeyUp, { capture: true, passive: false });
     window.addEventListener('blur', () => {
       this.keys.clear();
       this.moveTouch.clear();
@@ -229,30 +238,16 @@ export class Player {
     // OSM pedestrian segments are a navigation aid, not a hard movement lock.
     // Some mapped ways have incomplete widths or disconnected centre-lines; never
     // let that data freeze the player. Building collision boxes remain authoritative.
-    const destinationWalkable = !this.walkableSegments.length || isWalkableAt(nextX, nextZ, this.walkableSegments);
-    if (destinationWalkable && !this.collides(nextX, nextZ)) {
+    // OSM walkability is used for route planning only. It must never veto
+    // real-time player input; only actual building colliders can stop movement.
+    if (!this.collides(nextX, nextZ)) {
       this.group.position.set(nextX, this.group.position.y, nextZ);
       return;
     }
 
-    // First try sliding along the mapped pavement. If OSM rejects both axes,
-    // allow collision-safe movement so the player can still leave the spawn point.
-    let moved = false;
-    if (!this.collides(nextX, currentZ) &&
-        (!this.walkableSegments.length || isWalkableAt(nextX, currentZ, this.walkableSegments))) {
-      this.group.position.x = nextX;
-      moved = true;
-    }
-    if (!this.collides(this.group.position.x, nextZ) &&
-        (!this.walkableSegments.length || isWalkableAt(this.group.position.x, nextZ, this.walkableSegments))) {
-      this.group.position.z = nextZ;
-      moved = true;
-    }
-
-    if (!moved) {
-      if (!this.collides(nextX, currentZ)) this.group.position.x = nextX;
-      if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
-    }
+    // Axis-separated collision response lets the player slide along walls.
+    if (!this.collides(nextX, currentZ)) this.group.position.x = nextX;
+    if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
   }
 
   private collides(x: number, z: number) {
