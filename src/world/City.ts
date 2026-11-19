@@ -131,17 +131,17 @@ export function buildCity() {
 
   // City-centre and waterfront landmarks.
   addLandmark(group,interactables,colliders,'cavern',gameVariables.places.cavernClub.displayName,-26,-9,'#9b5948','VISITAR');
-  addLandmark(group,interactables,colliders,'jacaranda','The Jacaranda',-38,8,'#98744f','VISIT');
-  addLandmark(group,interactables,colliders,'pier-head','Pier Head & Beatles Statue',-67,-28,'#b6a58a','CONOCER');
+  addLandmark(group,interactables,colliders,'jacaranda','The Jacaranda',-38,8,'#98744f','VISITAR');
+  addLandmark(group,interactables,colliders,'pier-head','Pier Head y la estatua de los Beatles',-67,-28,'#b6a58a','CONOCER');
   addLandmark(group,interactables,colliders,'albert-dock','Royal Albert Dock',-53,-40,'#9b6b52','EXPLORAR');
   addLandmark(group,interactables,colliders,'beatles-story','The Beatles Story',-44,-42,'#7d8c84','VISIT');
   addLandmark(group,interactables,colliders,'recordshop',gameVariables.places.recordShop.displayName,8,-5,'#71877d','VISIT');
 
   // South Liverpool: Penny Lane, childhood-home area, St Peter's and Strawberry Field.
-  addLandmark(group,interactables,colliders,'penny-lane',gameVariables.places.pennyLane.displayName,40,20,'#b58a60','EXPLORE');
+  addLandmark(group,interactables,colliders,'penny-lane',gameVariables.places.pennyLane.displayName,40,20,'#b58a60','EXPLORAR');
   addLandmark(group,interactables,colliders,'st-peters',gameVariables.places.stPetersChurch.displayName,85,35,'#9a9b89','VISIT');
   addLandmark(group,interactables,colliders,'strawberry-field','Strawberry Field',82,43,'#a65b4b','VISIT');
-  addLandmark(group,interactables,colliders,'mendips','Mendips · John Lennon childhood home',92,29,'#c0aa86','INSPECT');
+  addLandmark(group,interactables,colliders,'mendips','Mendips · John Lennon childhood home',92,29,'#c0aa86','CONOCER');
   addLandmark(group,interactables,colliders,'forthlin-road','20 Forthlin Road · Paul McCartney childhood home',55,45,'#b88c67','INSPECT');
 
   // North-west: Casbah Coffee Club in West Derby.
@@ -167,7 +167,7 @@ export function buildCity() {
   const jack = new THREE.Group();
   jack.position.set(85,0,18.5);
   jack.userData.interactionId = gameVariables.characters.john.id;
-  jack.userData.prompt = `TALK TO ${gameVariables.characters.john.displayName.toUpperCase()}`;
+  jack.userData.prompt = `HABLAR CON ${gameVariables.characters.john.displayName.toUpperCase()}`;
   jack.userData.lookAt = new THREE.Vector3(85,1.7,18.5);
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.36,0.9,4,8),material('#344b50'));
   body.position.y=0.92; jack.add(body);
