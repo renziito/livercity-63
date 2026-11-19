@@ -14,26 +14,33 @@
       <header class="topbar">
         <div class="brand">LiverCity</div>
         <div class="chapter">CHAPTER 01 <span>·</span> THE FIRST NOTE</div>
-        <button id="map-button" class="icon-button" aria-label="Show map">MAP</button>
+        <button id="map-button" class="icon-button" aria-label="Open map">MAP · M</button>
       </header>
-      <section class="mission-card">
-        <div class="eyebrow">CURRENT OBJECTIVE</div>
-        <h1 id="mission-title">A NEW FACE IN WOOLTON</h1>
-        <p id="mission-copy">Find Jack near the church fête and begin the story.</p>
-        <div class="progress"><i id="mission-progress"></i></div>
-      </section>
+      <div id="minimap" class="minimap" role="button" aria-label="Open large map">
+        <div class="minimap-title">LIVERCITY <span>MAP · M</span></div>
+        <div class="map-art mini-art">
+          <div class="map-block block-west"></div><div class="map-block block-east"></div>
+          <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
+          <div class="map-road road-main"></div><div class="map-road road-cross"></div>
+          <span class="map-pin pin-club">CAVERN</span><span class="map-pin pin-shop">SHOP</span>
+          <span class="map-player" data-map-player></span>
+          <span class="map-objective" data-map-objective hidden>◆</span>
+          <span class="map-mission" data-map-mission>!</span>
+        </div>
+        <div class="mini-status" data-map-status>MISSION AVAILABLE · FIND JACK</div>
+      </div>
       <div class="interaction" id="interaction" hidden><span class="keycap">E</span><span id="interaction-copy">Talk</span></div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <div class="bottom-left">
         <div class="location-label">LIVERPOOL <span>—</span> OLD QUARTER</div>
-        <div class="hint" id="hint">WASD move · Mouse look · E interact · Shift run</div>
+        <div class="hint" id="hint">WASD / ARROWS move · Mouse look · E interact · Shift run</div>
       </div>
       <div class="bottom-right"><div class="cash">£<span id="cash">0</span></div><div class="rep">REPUTATION <b id="rep">0</b></div></div>
       <div id="dialogue" class="dialogue" hidden>
         <div class="dialogue-inner">
           <div class="eyebrow" id="speaker">JACK LENNER</div>
           <p id="dialogue-text"></p>
-          <button id="dialogue-next" class="primary-button">CONTINUE <span>→</span></button>
+          <button id="dialogue-next" class="primary-button">CONTINUE →</button>
         </div>
       </div>
       <div id="map-panel" class="map-panel" hidden>
@@ -41,22 +48,21 @@
         <div class="map-legend">
           <span><i class="legend-player"></i> YOU</span>
           <span><i class="legend-objective"></i> OBJECTIVE</span>
+          <span><i class="legend-mission"></i> MISSION / NPC</span>
           <span><i class="legend-place"></i> PLACES</span>
         </div>
-        <div class="map-art" aria-label="Map of the playable neighborhood">
-          <div class="map-block block-west"></div>
-          <div class="map-block block-east"></div>
-          <div class="map-block block-northwest"></div>
-          <div class="map-block block-northeast"></div>
-          <div class="map-road road-main"></div>
-          <div class="map-road road-cross"></div>
+        <div class="map-art large-art">
+          <div class="map-block block-west"></div><div class="map-block block-east"></div>
+          <div class="map-block block-northwest"></div><div class="map-block block-northeast"></div>
+          <div class="map-road road-main"></div><div class="map-road road-cross"></div>
           <span class="map-street-label street-main">OLD QUARTER ROAD</span>
-          <span class="map-pin pin-club">CAVERN CLUB</span>
-          <span class="map-pin pin-shop">RECORD SHOP</span>
-          <span class="map-player" id="map-player" aria-label="Your position"></span>
-          <span class="map-objective" id="map-objective" aria-label="Objective direction">▲</span>
+          <span class="map-pin pin-club">CAVERN CLUB</span><span class="map-pin pin-shop">NEEDLE & GROOVE</span>
+          <span class="map-player" data-map-player></span>
+          <span class="map-objective" data-map-objective hidden>◆</span>
+          <span class="map-mission" data-map-mission>!</span>
         </div>
-        <p>Follow the gold arrow to Jack. The map updates as you move.</p>
+        <p data-map-status>MISSION AVAILABLE · FIND JACK</p>
+        <p>Gold marker: current objective. Red marker: your position. !: mission available.</p>
       </div>
       <div class="mobile-controls" id="mobile-controls">
         <div class="dpad" aria-label="Movement controls">
