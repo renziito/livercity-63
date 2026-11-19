@@ -3,6 +3,9 @@ import type { MissionManager } from '../missions/MissionManager';
 export class UI {
   private interaction=document.getElementById('interaction')!;private dialogue=document.getElementById('dialogue')!;private dialogueText=document.getElementById('dialogue-text')!;private speaker=document.getElementById('speaker')!;private step=0;private dialogueLines=[...gameVariables.openingMission.dialogue];
   constructor(private missions:MissionManager){
+    document.title = `${gameVariables.game.title} — working title`;
+    const brand = document.querySelector('.brand'); if (brand) brand.textContent = gameVariables.game.title;
+    const startLogo = document.querySelector('.start-logo'); if (startLogo) startLogo.textContent = gameVariables.game.title;
     document.getElementById('dialogue-next')!.addEventListener('click',()=>this.nextDialogue());
     document.getElementById('map-close')!.addEventListener('click',()=>this.toggleMap(false));
     document.getElementById('map-button')!.addEventListener('click',()=>this.toggleMap());
