@@ -192,11 +192,24 @@ export class Player {
   }
 
   private moveWithCollisions(deltaX: number, deltaZ: number) {
-    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -5650, 5650);
-    if (isWalkableAt(nextX, this.group.position.z, this.walkableSegments) && !this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
+    const currentX = this.group.position.x;
+    const currentZ = this.group.position.z;
+    const nextX = THREE.MathUtils.clamp(currentX + deltaX, -5650, 5650);
+    const nextZ = THREE.MathUtils.clamp(currentZ + deltaZ, -5000, 5000);
 
-    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -5000, 5000);
-    if (isWalkableAt(this.group.position.x, nextZ, this.walkableSegments) && !this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
+    // Prefer the complete movement vector so angled streets and intersections feel natural.
+    if (isWalkableAt(nextX, nextZ, this.walkableSegments) && !this.collides(nextX, nextZ)) {
+      this.group.position.set(nextX, this.group.position.y, nextZ);
+      return;
+    }
+
+    // Slide along a building edge or pavement boundary instead of stopping abruptly.
+    if (isWalkableAt(nextX, currentZ, this.walkableSegments) && !this.collides(nextX, currentZ)) {
+      this.group.position.x = nextX;
+    }
+    if (isWalkableAt(this.group.position.x, nextZ, this.walkableSegments) && !this.collides(this.group.position.x, nextZ)) {
+      this.group.position.z = nextZ;
+    }
   }
 
   private collides(x: number, z: number) {
