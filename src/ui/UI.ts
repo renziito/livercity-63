@@ -13,6 +13,7 @@ export class UI {
   private step = 0;
   private dialogueLines: string[] = [...gameVariables.openingMission.dialogue];
   private dialogueMode: 'offer' | 'none' = 'none';
+  private mapZoom = 1;
 
   constructor(private missions: MissionManager) {
     document.title = gameVariables.game.title;
@@ -24,6 +25,9 @@ export class UI {
     document.getElementById('dialogue-next')!.addEventListener('click', () => this.nextDialogue());
     document.getElementById('map-close')!.addEventListener('click', () => this.toggleMap(false));
     document.getElementById('map-button')!.addEventListener('click', () => this.toggleMap());
+    document.getElementById('map-zoom-in')?.addEventListener('click', () => this.setMapZoom(0.35));
+    document.getElementById('map-zoom-out')?.addEventListener('click', () => this.setMapZoom(-0.35));
+    document.getElementById('map-zoom-reset')?.addEventListener('click', () => { this.mapZoom = 1; this.applyMapZoom(); });
     document.getElementById('minimap')!.addEventListener('click', () => this.toggleMap(true));
     document.getElementById('location-close')!.addEventListener('click', () => this.closeLocation());
     document.querySelector('[data-action="interact"]')?.addEventListener('click', () => {
@@ -34,10 +38,15 @@ export class UI {
 
   private buildMaps() {
     document.querySelectorAll<HTMLElement>('[data-map-surface]').forEach((surface) => {
-      surface.style.backgroundImage = `url("${LIVERPOOL_SATELLITE_URL}")`;
-      surface.style.backgroundSize = '100% 100%';
-      surface.style.backgroundPosition = 'center';
-      surface.style.backgroundRepeat = 'no-repeat';
+      const content = document.createElement('div');
+      content.className = 'map-content';
+      content.dataset.mapContent = '';
+      content.style.backgroundImage = 'url("' + LIVERPOOL_SATELLITE_URL + '")';
+      surface.appendChild(content);
+      surface.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        this.setMapZoom(event.deltaY < 0 ? 0.2 : -0.2);
+      }, { passive: false });
 
       for (const location of LIVERPOOL_LOCATIONS) {
         const marker = document.createElement('button');
@@ -53,20 +62,20 @@ export class UI {
           event.stopPropagation();
           this.openLocation(location.id);
         });
-        surface.appendChild(marker);
+        content.appendChild(marker);
       }
 
       const player = document.createElement('span');
       player.className = 'map-player';
       player.dataset.mapPlayer = '';
-      surface.appendChild(player);
+      content.appendChild(player);
 
       const objective = document.createElement('span');
       objective.className = 'map-objective';
       objective.dataset.mapObjective = '';
       objective.textContent = '◆';
       objective.hidden = true;
-      surface.appendChild(objective);
+      content.appendChild(objective);
 
       const mission = document.createElement('span');
       mission.className = 'map-mission';
@@ -76,7 +85,21 @@ export class UI {
       const jackPoint = worldToMapPercent({ x: jackPlace.world.x, z: jackPlace.world.z + 10 });
       mission.style.left = `${jackPoint.x}%`;
       mission.style.top = `${jackPoint.y}%`;
-      surface.appendChild(mission);
+      content.appendChild(mission);
+    });
+  }
+
+  private setMapZoom(delta: number) {
+    this.mapZoom = Math.max(1, Math.min(4.5, this.mapZoom + delta));
+    this.applyMapZoom();
+  }
+
+  private applyMapZoom() {
+    document.querySelectorAll<HTMLElement>('[data-map-content]').forEach((content) => {
+      content.style.transform = 'scale(' + this.mapZoom + ')';
+    });
+    document.querySelectorAll<HTMLElement>('[data-map-zoom-level]').forEach((label) => {
+      label.textContent = Math.round(this.mapZoom * 100) + '%';
     });
   }
 
