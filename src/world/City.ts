@@ -54,14 +54,12 @@ function addTerrace(parent: THREE.Group, x: number, z: number, width: number, de
 
   const frontZ = -depth / 2 - 0.055;
   const floors = Math.max(2, Math.floor(height / 3.1));
-  const windowsPerFloor = Math.max(2, Math.floor(width / 2.25));
+  const windowsPerFloor = Math.max(2, Math.floor(width / 4.5));
   for (let floor = 0; floor < floors; floor++) {
     const y = 1.25 + floor * 2.65;
     for (let i = 0; i < windowsPerFloor; i++) {
       const wx = -width / 2 + (i + 0.5) * width / windowsPerFloor;
-      box(house, wx, y, frontZ, 0.72, 1.08, 0.12, '#d4c9ad', false);
-      box(house, wx, y, frontZ - 0.075, 0.54, 0.88, 0.045, '#344b50', false);
-      box(house, wx, y, frontZ - 0.105, 0.055, 0.9, 0.025, '#d9d1bd', false);
+      box(house, wx, y, frontZ - 0.045, 0.66, 0.92, 0.12, '#344b50', false);
     }
   }
   box(house, 0, 1.05, frontZ - 0.06, 0.95, 2.05, 0.16, '#4b3028', false);
@@ -108,7 +106,7 @@ function addDistrict(parent: THREE.Group, centerX: number, centerZ: number, rota
 
   const block = 58;
   const roadWidth = 10;
-  const gridCount = 5;
+  const gridCount = 3;
   const span = block * (gridCount - 1) + roadWidth;
   // Slightly irregular street grid: the Liverpool street pattern is compact, not a perfect US grid.
   for (let i = 0; i < gridCount; i++) {
@@ -125,8 +123,8 @@ function addDistrict(parent: THREE.Group, centerX: number, centerZ: number, rota
       const cz = (gz - (gridCount - 2) / 2) * block;
       // Houses line the four edges of each block, leaving a shared rear yard.
       for (let side = 0; side < 4; side++) {
-        for (let n = 0; n < 3; n++) {
-          const along = (n - 1) * 13.5;
+        for (let n = 0; n < 2; n++) {
+          const along = (n - 0.5) * 14;
           const edge = block / 2 - 8;
           let bx = cx, bz = cz, facing = 0;
           if (side === 0) { bx += along; bz -= edge; facing = 0; }
