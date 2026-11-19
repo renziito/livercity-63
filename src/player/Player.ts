@@ -52,14 +52,23 @@ export class Player {
     this.group.rotation.y = 0;
     scene.add(this.group);
 
+    const movementKeys: Record<string, string> = {
+      KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd',
+      ArrowUp: 'arrowup', ArrowDown: 'arrowdown',
+      ArrowLeft: 'arrowleft', ArrowRight: 'arrowright',
+      ShiftLeft: 'shift', ShiftRight: 'shift'
+    };
+    const normalizeKey = (event: KeyboardEvent) =>
+      movementKeys[event.code] ?? event.key.toLowerCase();
+
     window.addEventListener('keydown', (event) => {
-      const key = event.key.toLowerCase();
+      const key = normalizeKey(event);
       this.keys.add(key);
       if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
         event.preventDefault();
       }
-    });
-    window.addEventListener('keyup', (event) => this.keys.delete(event.key.toLowerCase()));
+    }, { passive: false });
+    window.addEventListener('keyup', (event) => this.keys.delete(normalizeKey(event)));
     window.addEventListener('blur', () => {
       this.keys.clear();
       this.moveTouch.clear();
