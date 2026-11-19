@@ -4,6 +4,7 @@ import { gameVariables } from '../data/variables';
 import { LIVERPOOL_LOCATIONS } from '../data/locations';
 import { LIVERPOOL_SATELLITE_URL, WORLD_SIZE, geoToWorld } from '../data/geography';
 import type { WalkableSegment } from './navigation';
+import { LIVERPOOL_TRAVEL_DESTINATIONS, travelDestinationWorld } from '../data/travel';
 
 type OSMWay = {
   id: number;
@@ -181,7 +182,7 @@ function createBuildingGeometry(way: OSMWay, index: number) {
   };
 }
 
-async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], spawnPosition: THREE.Vector3) {
+async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], spawnPosition: THREE.Vector3, interactables: THREE.Object3D[]) {
   const dataUrl = new URL('data/liverpool-osm.json', document.baseURI);
   const response = await fetch(dataUrl);
   if (!response.ok) throw new Error('No se pudo cargar el extracto OpenStreetMap (' + response.status + ')');
@@ -218,27 +219,13 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
 
   if (!walkableSegments.length) throw new Error('OpenStreetMap no contiene calles peatonales transitables.');
   // Begin in central Liverpool, at a real mapped street close to Lime Street.
-  const requestedStart = geoToWorld({ lat: 53.40815, lon: -2.97915 });
-  let nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number } | null = null;
-  for (const segment of walkableSegments) {
-    const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
-    const lengthSq = dx * dx + dz * dz;
-    if (lengthSq < 0.01) continue;
-    const length = Math.sqrt(lengthSq);
-    const t = THREE.MathUtils.clamp(((requestedStart.x - segment.ax) * dx + (requestedStart.z - segment.az) * dz) / lengthSq, 0, 1);
-    const x = segment.ax + dx * t, z = segment.az + dz * t;
-    const distance = Math.hypot(requestedStart.x - x, requestedStart.z - z);
-    if (!nearest || distance < nearest.distance) {
-      let nx = -dz / length, nz = dx / length;
-      if ((requestedStart.x - x) * nx + (requestedStart.z - z) * nz < 0) { nx *= -1; nz *= -1; }
-      nearest = { x, z, distance, nx, nz, tx: dx / length, tz: dz / length, halfWidth: segment.halfWidth };
-    }
-  }
-  if (!nearest) throw new Error('No se encontró una calle adecuada para el punto inicial.');
-  const pavementOffset = Math.max(0.8, nearest.halfWidth - 0.9);
-  spawnPosition.set(nearest.x + nearest.nx * pavementOffset - nearest.tx * 1.2, 0, nearest.z + nearest.nz * pavementOffset - nearest.tz * 1.2);
-  const stop = createBusStop(group, nearest.x + nearest.nx * pavementOffset + nearest.tx * 2.0, nearest.z + nearest.nz * pavementOffset + nearest.tz * 2.0, Math.atan2(nearest.tx, nearest.tz));
-  stop.name = 'Lime Street bus stop';
+  const requestedStart = geoToWorld({ lat: 53.40730, lon: -2.97770 });
+  const stationSpawn = findStreetSpawn(new THREE.Vector3(requestedStart.x, 0, requestedStart.z), walkableSegments);
+  spawnPosition.copy(stationSpawn.position);
+  const nearest = stationSpawn.nearest;
+  const stop = createBusStop(group, nearest.x + nearest.nx * nearest.halfWidth + nearest.tx * 2.0, nearest.z + nearest.nz * nearest.halfWidth + nearest.tz * 2.0, Math.atan2(nearest.tx, nearest.tz));
+  stop.name = 'Lime Street Station bus stop';
+  createTravelHub(group, spawnPosition, interactables);
 
   const roadGeometry = createRibbonGeometry(roads, false);
   const roadMesh = new THREE.Mesh(roadGeometry, material('#34383a'));
@@ -353,6 +340,111 @@ function createBusStop(parent: THREE.Group, x: number, z: number, rotation: numb
   return stop;
 }
 
+function findStreetSpawn(target: THREE.Vector3, segments: WalkableSegment[]) {
+  let nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number } | null = null;
+  for (const segment of segments) {
+    const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
+    const lengthSq = dx * dx + dz * dz;
+    if (lengthSq < 0.01) continue;
+    const length = Math.sqrt(lengthSq);
+    const t = THREE.MathUtils.clamp(((target.x - segment.ax) * dx + (target.z - segment.az) * dz) / lengthSq, 0, 1);
+    const x = segment.ax + dx * t, z = segment.az + dz * t;
+    const distance = Math.hypot(target.x - x, target.z - z);
+    if (!nearest || distance < nearest.distance) {
+      let nx = -dz / length, nz = dx / length;
+      if ((target.x - x) * nx + (target.z - z) * nz < 0) { nx *= -1; nz *= -1; }
+      nearest = { x, z, distance, nx, nz, tx: dx / length, tz: dz / length, halfWidth: segment.halfWidth };
+    }
+  }
+  if (!nearest) throw new Error('No se encontró una calle peatonal para este destino.');
+  const pavementOffset = Math.max(0.8, nearest.halfWidth - 0.9);
+  return {
+    position: new THREE.Vector3(
+      nearest.x + nearest.nx * pavementOffset - nearest.tx * 1.2,
+      0,
+      nearest.z + nearest.nz * pavementOffset - nearest.tz * 1.2
+    ),
+    nearest
+  };
+}
+
+function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
+  const hub = new THREE.Group();
+  hub.position.copy(position);
+  hub.name = 'Lime Street Station · Beatles travel gates';
+  const frame = material('#253a3c', 0.5);
+  const brass = material('#c59a56', 0.55);
+  const glass = new THREE.MeshStandardMaterial({ color: '#73b9b5', emissive: '#1b6664', emissiveIntensity: 0.8, transparent: true, opacity: 0.7, roughness: 0.25 });
+  addBox(hub, 0, 2.3, -0.35, 15.8, 0.32, 0.55, brass);
+  addBox(hub, -7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
+  addBox(hub, 7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
+  addBox(hub, 0, 0.12, -0.35, 15.8, 0.24, 0.55, frame);
+
+  const titleCanvas = document.createElement('canvas');
+  titleCanvas.width = 1024;
+  titleCanvas.height = 180;
+  const ctx = titleCanvas.getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = '#17262a'; ctx.fillRect(0, 0, 1024, 180);
+    ctx.fillStyle = '#e7bd70'; ctx.font = 'bold 62px Georgia'; ctx.textAlign = 'center';
+    ctx.fillText('LIVERPOOL · BEATLES GATES', 512, 78);
+    ctx.fillStyle = '#d7d0bd'; ctx.font = '28px Arial';
+    ctx.fillText('CHOOSE YOUR NEXT DESTINATION', 512, 130);
+  }
+  const titleTexture = new THREE.CanvasTexture(titleCanvas);
+  const title = new THREE.Mesh(new THREE.PlaneGeometry(8.8, 1.55), new THREE.MeshBasicMaterial({ map: titleTexture, transparent: true }));
+  title.position.set(0, 4.1, -0.02);
+  hub.add(title);
+
+  const gates = LIVERPOOL_TRAVEL_DESTINATIONS;
+  gates.forEach((destination, index) => {
+    const column = index % 4;
+    const row = Math.floor(index / 4);
+    const x = (column - 1.5) * 3.65;
+    const z = row === 0 ? -0.08 : -0.72;
+    const gate = new THREE.Group();
+    gate.position.set(x, 0.25, z);
+    const gateFrame = material(destination.color, 0.48);
+    const glow = new THREE.MeshStandardMaterial({ color: destination.color, emissive: destination.color, emissiveIntensity: 0.42, transparent: true, opacity: 0.72, roughness: 0.25 });
+    addBox(gate, -1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
+    addBox(gate, 1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
+    addBox(gate, 0, 2.7, 0, 2.42, 0.18, 0.24, gateFrame);
+    const portal = new THREE.Mesh(new THREE.PlaneGeometry(2.05, 2.35), glow);
+    portal.position.set(0, 1.35, 0.13);
+    gate.add(portal);
+    addBox(gate, 0, 0.13, 0, 2.45, 0.22, 0.45, brass);
+    const labelCanvas = document.createElement('canvas');
+    labelCanvas.width = 512; labelCanvas.height = 128;
+    const labelContext = labelCanvas.getContext('2d');
+    if (labelContext) {
+      labelContext.fillStyle = '#17262a'; labelContext.fillRect(0, 0, 512, 128);
+      labelContext.fillStyle = '#f5e9cf'; labelContext.font = 'bold 30px Arial'; labelContext.textAlign = 'center';
+      labelContext.fillText(destination.label.toUpperCase(), 256, 52);
+      labelContext.fillStyle = '#d8bd87'; labelContext.font = '18px Arial';
+      labelContext.fillText(destination.category, 256, 88);
+    }
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.62), new THREE.MeshBasicMaterial({ map: labelTexture }));
+    sign.position.set(0, 3.18, 0.02);
+    gate.add(sign);
+    hub.add(gate);
+  });
+
+  const beacon = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.09, 10, 36), new THREE.MeshBasicMaterial({ color: '#e6b45e' }));
+  beacon.rotation.x = Math.PI / 2;
+  beacon.position.set(0, 0.12, 2.25);
+  hub.add(beacon);
+  parent.add(hub);
+
+  const trigger = new THREE.Group();
+  trigger.position.copy(position).add(new THREE.Vector3(0, 0, 2.5));
+  trigger.userData.interactionId = 'travel-hub';
+  trigger.userData.prompt = 'ABRIR PUERTAS DE VIAJE · LIME STREET STATION';
+  trigger.userData.lookAt = position.clone().add(new THREE.Vector3(0, 2, 0));
+  parent.add(trigger);
+  interactables.push(trigger);
+}
+
 function makeLandmark(parent: THREE.Group, location: typeof LIVERPOOL_LOCATIONS[number], seed: number, colliders: THREE.Box3[]) {
   const { x, z } = location.world;
   const building = new THREE.Group();
@@ -417,7 +509,7 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders, walkableSegments, spawnPosition);
+  const ready = loadOpenStreetMap(group, colliders, walkableSegments, spawnPosition, interactables);
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
@@ -446,5 +538,24 @@ export function buildCity() {
   group.add(jack);
   interactables.push(jack);
 
-  return { group, interactables, colliders, walkableSegments, spawnPosition, ready };
+  const travelTo = (destinationId: string) => {
+    const destination = LIVERPOOL_TRAVEL_DESTINATIONS.find(item => item.id === destinationId);
+    if (!destination) return null;
+    const target = travelDestinationWorld(destination);
+    const zoneSegments = walkableSegments.filter(segment => {
+      const midX = (segment.ax + segment.bx) / 2;
+      const midZ = (segment.az + segment.bz) / 2;
+      return Math.hypot(midX - target.x, midZ - target.z) <= destination.radius + segment.halfWidth;
+    });
+    if (!zoneSegments.length) return null;
+    const spawn = findStreetSpawn(new THREE.Vector3(target.x, 0, target.z), zoneSegments);
+    const activeSegments = zoneSegments.filter(segment => {
+      const midX = (segment.ax + segment.bx) / 2;
+      const midZ = (segment.az + segment.bz) / 2;
+      return Math.hypot(midX - spawn.position.x, midZ - spawn.position.z) <= destination.radius + segment.halfWidth;
+    });
+    return { position: spawn.position, walkableSegments: activeSegments.length ? activeSegments : zoneSegments, destination };
+  };
+
+  return { group, interactables, colliders, walkableSegments, spawnPosition, ready, travelTo };
 }
