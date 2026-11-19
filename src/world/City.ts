@@ -221,9 +221,15 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   if (!walkableSegments.length) throw new Error('OpenStreetMap no contiene calles peatonales transitables.');
   // Begin in central Liverpool, at a real mapped street close to Lime Street.
   const requestedStart = geoToWorld({ lat: 53.40730, lon: -2.97770 });
-  const stationSpawn = findStreetSpawn(new THREE.Vector3(requestedStart.x, 0, requestedStart.z), walkableSegments);
+  const buildingFootprints = buildings.map(way => way.coordinates.slice(0, -1).map(([lon, lat]) => geoToWorld({ lon, lat })));
+  const stationSpawn = findStreetSpawn(
+    new THREE.Vector3(requestedStart.x, 0, requestedStart.z),
+    walkableSegments,
+    buildingFootprints,
+    colliders
+  );
   spawnPosition.copy(stationSpawn.position);
-  const nearest = stationSpawn.nearest;
+  console.info('LiverCity safe spawn selected:', stationSpawn.position.toArray());
   createVictorianStation(group, spawnPosition);
   createTravelHub(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
 
@@ -435,8 +441,43 @@ function createBusStop(parent: THREE.Group, x: number, z: number, rotation: numb
   return stop;
 }
 
-function findStreetSpawn(target: THREE.Vector3, segments: WalkableSegment[]) {
-  let nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number } | null = null;
+function pointInFootprint(x: number, z: number, polygon: { x: number; z: number }[]) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const a = polygon[i], b = polygon[j];
+    const crosses = (a.z > z) !== (b.z > z) &&
+      x < ((b.x - a.x) * (z - a.z)) / ((b.z - a.z) || Number.EPSILON) + a.x;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+}
+
+function distanceToFootprintEdge(x: number, z: number, polygon: { x: number; z: number }[]) {
+  let minimum = Infinity;
+  for (let i = 0; i < polygon.length; i++) {
+    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const lengthSq = dx * dx + dz * dz;
+    const t = lengthSq > 0
+      ? THREE.MathUtils.clamp(((x - a.x) * dx + (z - a.z) * dz) / lengthSq, 0, 1)
+      : 0;
+    minimum = Math.min(minimum, Math.hypot(x - (a.x + dx * t), z - (a.z + dz * t)));
+  }
+  return minimum;
+}
+
+function findStreetSpawn(
+  target: THREE.Vector3,
+  segments: WalkableSegment[],
+  buildingFootprints: { x: number; z: number }[][] = [],
+  colliders: THREE.Box3[] = []
+) {
+  const candidates: {
+    position: THREE.Vector3;
+    distance: number;
+    nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number };
+  }[] = [];
+
   for (const segment of segments) {
     const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
     const lengthSq = dx * dx + dz * dz;
@@ -445,22 +486,37 @@ function findStreetSpawn(target: THREE.Vector3, segments: WalkableSegment[]) {
     const t = THREE.MathUtils.clamp(((target.x - segment.ax) * dx + (target.z - segment.az) * dz) / lengthSq, 0, 1);
     const x = segment.ax + dx * t, z = segment.az + dz * t;
     const distance = Math.hypot(target.x - x, target.z - z);
-    if (!nearest || distance < nearest.distance) {
-      let nx = -dz / length, nz = dx / length;
-      if ((target.x - x) * nx + (target.z - z) * nz < 0) { nx *= -1; nz *= -1; }
-      nearest = { x, z, distance, nx, nz, tx: dx / length, tz: dz / length, halfWidth: segment.halfWidth };
+    let nx = -dz / length, nz = dx / length;
+    if ((target.x - x) * nx + (target.z - z) * nz < 0) { nx *= -1; nz *= -1; }
+    const tx = dx / length, tz = dz / length;
+    const nearest = { x, z, distance, nx, nz, tx, tz, halfWidth: segment.halfWidth };
+    const baseOffset = Math.max(0.8, segment.halfWidth - 0.9);
+
+    for (const side of [1, -1]) {
+      for (const lateral of [baseOffset, Math.max(0.65, baseOffset - 1.2), baseOffset + 1.2]) {
+        for (const along of [-3, -1.5, 0, 1.5, 3]) {
+          const candidateX = x + nx * lateral * side + tx * along;
+          const candidateZ = z + nz * lateral * side + tz * along;
+          const blockedByBuilding = buildingFootprints.some(polygon =>
+            pointInFootprint(candidateX, candidateZ, polygon) ||
+            distanceToFootprintEdge(candidateX, candidateZ, polygon) < 1.15
+          );
+          const blockedByLandmark = colliders.some(box =>
+            candidateX > box.min.x - 0.8 && candidateX < box.max.x + 0.8 &&
+            candidateZ > box.min.z - 0.8 && candidateZ < box.max.z + 0.8
+          );
+          if (blockedByBuilding || blockedByLandmark) continue;
+          const position = new THREE.Vector3(candidateX, 0, candidateZ);
+          candidates.push({ position, distance: position.distanceTo(target), nearest });
+        }
+      }
     }
   }
-  if (!nearest) throw new Error('No se encontró una calle peatonal para este destino.');
-  const pavementOffset = Math.max(0.8, nearest.halfWidth - 0.9);
-  return {
-    position: new THREE.Vector3(
-      nearest.x + nearest.nx * pavementOffset - nearest.tx * 1.2,
-      0,
-      nearest.z + nearest.nz * pavementOffset - nearest.tz * 1.2
-    ),
-    nearest
-  };
+
+  candidates.sort((a, b) => a.distance - b.distance);
+  const best = candidates[0];
+  if (!best) throw new Error('No se encontró una posición de aparición libre de edificios en las calles peatonales.');
+  return { position: best.position, nearest: best.nearest };
 }
 
 function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
@@ -645,7 +701,7 @@ export function buildCity() {
       return Math.hypot(midX - target.x, midZ - target.z) <= destination.radius + segment.halfWidth;
     });
     if (!zoneSegments.length) return null;
-    const spawn = findStreetSpawn(new THREE.Vector3(target.x, 0, target.z), zoneSegments);
+    const spawn = findStreetSpawn(new THREE.Vector3(target.x, 0, target.z), zoneSegments, buildingFootprints, colliders);
     const activeSegments = zoneSegments.filter(segment => {
       const midX = (segment.ax + segment.bx) / 2;
       const midZ = (segment.az + segment.bz) / 2;
