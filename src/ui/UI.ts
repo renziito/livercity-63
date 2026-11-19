@@ -31,7 +31,9 @@ export class UI {
     document.getElementById('map-zoom-in')?.addEventListener('click', () => this.setMapZoom(0.35));
     document.getElementById('map-zoom-out')?.addEventListener('click', () => this.setMapZoom(-0.35));
     document.getElementById('map-zoom-reset')?.addEventListener('click', () => { this.mapZoom = 1; this.applyMapZoom(); });
-    document.getElementById('minimap')!.addEventListener('click', () => this.toggleMap(true));
+    // The minimap is intentionally disabled in the current build.
+    // Keep the UI initialization safe when its DOM element is absent.
+    document.getElementById('minimap')?.addEventListener('click', () => this.toggleMap(true));
     document.getElementById('location-close')!.addEventListener('click', () => this.closeLocation());
     document.getElementById('travel-close')?.addEventListener('click', () => this.closeTravel());
     this.buildTravelDoors();
