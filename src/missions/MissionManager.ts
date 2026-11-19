@@ -32,7 +32,7 @@ export class MissionManager {
         characterId: level.characterId,
         title: template.title,
         objective: template.objective,
-        historicalDate: template.date,
+        historicalDate: chapter.years,
         targetId: template.targetId,
         rewardCash: template.reward,
         rewardReputation: template.reward
@@ -49,9 +49,18 @@ export class MissionManager {
   }
 
   get target() {
-    if (this.stage === 'to-shop') return { x: 8, z: -11, label: gameVariables.places.recordShop.displayName };
-    if (this.stage === 'return-to-jack') return { x: 85, z: 26.5, label: gameVariables.characters.john.displayName };
-    if (this.stage === 'available') return { x: 85, z: 26.5, label: gameVariables.characters.john.displayName };
+    if (this.stage === 'to-shop') {
+      const targets: Record<string,{x:number;z:number;label:string}> = {
+        recordshop:{x:8,z:-11,label:gameVariables.places.recordShop.displayName},
+        cavern:{x:-26,z:-14.2,label:gameVariables.places.cavernClub.displayName},
+        'penny-lane':{x:40,z:13.8,label:gameVariables.places.pennyLane.displayName},
+        casbah:{x:45,z:-56.2,label:gameVariables.places.casbahCoffeeClub.displayName},
+        'st-peters':{x:85,z:28.8,label:gameVariables.places.stPetersChurch.displayName}
+      };
+      return targets[this.currentMission?.targetId ?? 'recordshop'] ?? targets.recordshop;
+    }
+    if (this.stage === 'return-to-jack') return { x: 85, z: 18.5, label: gameVariables.characters.john.displayName };
+    if (this.stage === 'available') return { x: 85, z: 18.5, label: gameVariables.characters.john.displayName };
     return null;
   }
 
