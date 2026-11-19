@@ -1,6 +1,8 @@
 import { gameVariables } from '../data/variables';
 import type { MissionManager } from '../missions/MissionManager';
 
+type MapTarget = { x: number; z: number; label: string } | null;
+
 export class UI {
   private interaction = document.getElementById('interaction')!;
   private dialogue = document.getElementById('dialogue')!;
@@ -8,6 +10,7 @@ export class UI {
   private speaker = document.getElementById('speaker')!;
   private step = 0;
   private dialogueLines = [...gameVariables.openingMission.dialogue];
+  private dialogueMode: 'offer' | 'none' = 'none';
 
   constructor(private missions: MissionManager) {
     document.title = gameVariables.game.title;
@@ -19,6 +22,7 @@ export class UI {
     document.getElementById('dialogue-next')!.addEventListener('click', () => this.nextDialogue());
     document.getElementById('map-close')!.addEventListener('click', () => this.toggleMap(false));
     document.getElementById('map-button')!.addEventListener('click', () => this.toggleMap());
+    document.getElementById('minimap')!.addEventListener('click', () => this.toggleMap(true));
     document.querySelector('[data-action="interact"]')?.addEventListener('click', () => {
       window.dispatchEvent(new Event('game-interact'));
     });
@@ -41,30 +45,49 @@ export class UI {
 
   bindMap(callback: () => void) {
     window.addEventListener('keydown', (event) => {
-      if (event.key.toLowerCase() === 'm') callback();
+      if (event.key.toLowerCase() === 'm' && !this.dialogueVisible()) callback();
     });
   }
 
   toggleMap(force?: boolean) {
     const panel = document.getElementById('map-panel')!;
-    panel.hidden = force === undefined ? !panel.hidden : !force;
+    const open = force === undefined ? panel.hidden : force;
+    panel.hidden = !open;
+    document.getElementById('minimap')?.classList.toggle('map-expanded', open);
   }
 
-  updateMap(position: { x: number; z: number }) {
-    const player = document.getElementById('map-player');
-    const objective = document.getElementById('map-objective');
-    if (player) {
+  updateMap(position: { x: number; z: number }, target: MapTarget, missionStage: string) {
+    document.querySelectorAll<HTMLElement>('[data-map-player]').forEach((player) => {
       const x = ((position.x + 27) / 54) * 100;
       const y = ((position.z + 32) / 64) * 100;
       player.style.left = `${Math.max(2, Math.min(98, x))}%`;
       player.style.top = `${Math.max(2, Math.min(98, y))}%`;
-    }
-    if (objective) {
-      const targetX = ((-1.5 + 27) / 54) * 100;
-      const targetY = ((-13.7 + 32) / 64) * 100;
-      objective.style.left = `${targetX}%`;
-      objective.style.top = `${targetY}%`;
-    }
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-map-objective]').forEach((marker) => {
+      if (!target) {
+        marker.hidden = true;
+        return;
+      }
+      marker.hidden = false;
+      marker.style.left = `${((target.x + 27) / 54) * 100}%`;
+      marker.style.top = `${((target.z + 32) / 64) * 100}%`;
+      marker.title = target.label;
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-map-mission]').forEach((marker) => {
+      marker.hidden = missionStage !== 'available';
+    });
+    const status = document.querySelectorAll<HTMLElement>('[data-map-status]');
+    status.forEach((el) => {
+      el.textContent = missionStage === 'available'
+        ? 'MISSION AVAILABLE · FIND JACK'
+        : missionStage === 'to-shop'
+          ? 'MISSION · FIND THE INSTRUMENT'
+          : missionStage === 'return-to-jack'
+            ? 'MISSION · RETURN TO JACK'
+            : 'NO ACTIVE MISSION';
+    });
   }
 
   setInteraction(text: string) {
@@ -73,23 +96,50 @@ export class UI {
   }
 
   openProtagonistDialogue() {
-    this.step = 0;
-    this.speaker.textContent = gameVariables.characters.john.displayName.toUpperCase();
-    this.dialogueText.textContent = this.dialogueLines[0];
-    this.dialogue.hidden = false;
-    this.setInteraction('');
+    if (this.missions.stage === 'available') {
+      this.dialogueMode = 'offer';
+      this.step = 0;
+      this.speaker.textContent = gameVariables.characters.john.displayName.toUpperCase();
+      this.dialogueText.textContent = this.dialogueLines[0];
+      document.getElementById('dialogue-next')!.textContent = 'CONTINUE →';
+      this.dialogue.hidden = false;
+      this.setInteraction('');
+      return;
+    }
+
+    if (this.missions.stage === 'return-to-jack') {
+      this.missions.completeFirstMission();
+      this.notify('MISSION COMPLETE · REPUTATION +' + this.missions.reputation);
+      this.refresh();
+      return;
+    }
+
+    if (this.missions.stage === 'to-shop') {
+      this.notify('I need you to find that instrument first.');
+      return;
+    }
+
+    this.notify('Good to see you again.');
+  }
+
+  acceptMission() {
+    this.missions.acceptFirstMission();
+    this.dialogue.hidden = true;
+    this.dialogueMode = 'none';
+    this.notify('MISSION ACCEPTED · GO TO NEEDLE & GROOVE');
+    this.refresh();
   }
 
   private nextDialogue() {
     this.step++;
     if (this.step < this.dialogueLines.length) {
       this.dialogueText.textContent = this.dialogueLines[this.step];
+      if (this.step === this.dialogueLines.length - 1) {
+        document.getElementById('dialogue-next')!.textContent = 'ACCEPT MISSION →';
+      }
       return;
     }
-    this.dialogue.hidden = true;
-    this.missions.completeFirstMission();
-    this.notify(`MISSION COMPLETE · £${this.missions.cash} · REPUTATION +${this.missions.reputation}`);
-    this.refresh();
+    this.acceptMission();
   }
 
   private dialogueVisible() {
@@ -104,9 +154,6 @@ export class UI {
   }
 
   refresh() {
-    document.getElementById('mission-title')!.textContent = this.missions.title;
-    document.getElementById('mission-copy')!.textContent = this.missions.copy;
-    document.getElementById('mission-progress')!.style.width = `${this.missions.progress * 100}%`;
     document.getElementById('cash')!.textContent = String(this.missions.cash);
     document.getElementById('rep')!.textContent = String(this.missions.reputation);
   }
