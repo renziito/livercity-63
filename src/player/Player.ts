@@ -61,18 +61,30 @@ export class Player {
     const normalizeKey = (event: KeyboardEvent) =>
       movementKeys[event.code] ?? event.key.toLowerCase();
 
-    window.addEventListener('keydown', (event) => {
+    // Capture movement keys at document level so they work even when the
+    // canvas does not have keyboard focus or the browser has other shortcuts.
+    document.addEventListener('keydown', (event) => {
       const key = normalizeKey(event);
-      this.keys.add(key);
       if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
         event.preventDefault();
+        event.stopPropagation();
+        this.keys.add(key);
       }
-    }, { passive: false });
-    window.addEventListener('keyup', (event) => this.keys.delete(normalizeKey(event)));
+    }, { capture: true, passive: false });
+    document.addEventListener('keyup', (event) => {
+      this.keys.delete(normalizeKey(event));
+    }, { capture: true });
     window.addEventListener('blur', () => {
       this.keys.clear();
       this.moveTouch.clear();
       this.running = false;
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.keys.clear();
+        this.moveTouch.clear();
+        this.running = false;
+      }
     });
 
     const canvas = document.getElementById('game') as HTMLCanvasElement;
