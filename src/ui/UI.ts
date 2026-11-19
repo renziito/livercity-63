@@ -178,7 +178,7 @@ export class UI {
       for (const photo of location.gallery) {
         const figure = document.createElement('figure');
         const image = document.createElement('img');
-        image.src = photo.src;
+        image.src = new URL(photo.src, document.baseURI).toString();
         image.alt = photo.caption;
         image.loading = 'lazy';
         const caption = document.createElement('figcaption');
@@ -203,6 +203,7 @@ export class UI {
       website.hidden = true;
     }
     panel.hidden = false;
+    window.dispatchEvent(new Event('livercity-location-open'));
     this.setInteraction('');
   }
 
@@ -211,6 +212,7 @@ export class UI {
     panel.hidden = true;
     const frame = document.getElementById('street-view-frame') as HTMLIFrameElement;
     frame.removeAttribute('src');
+    window.dispatchEvent(new Event('livercity-location-close'));
   }
 
   private locationVisible() {
