@@ -306,3 +306,45 @@ html, body, #app { min-height: 100%; height: 100%; }
   #street-view-frame { height:250px; }
   .location-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
+
+
+/* Map zoom: imagery and every georeferenced pin scale as one layer. */
+.map-art[data-map-surface] { position:relative; }
+.map-content {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  background-size:100% 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+  transform:scale(1);
+  transform-origin:50% 50%;
+  will-change:transform;
+}
+.map-art[data-map-surface]::after { z-index:2; }
+.map-zoom-controls {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:9px;
+  color:#d8d0bd;
+  font:9px 'DM Mono',monospace;
+}
+.map-zoom-controls button {
+  min-width:34px;
+  min-height:32px;
+  padding:4px 10px;
+  border:1px solid #d9cba655;
+  background:#253439;
+  color:#f4ead4;
+  font:17px 'DM Mono',monospace;
+  cursor:pointer;
+}
+.map-zoom-controls button:last-child { font-size:8px; letter-spacing:.08em; }
+.map-zoom-controls button:hover { background:#3b4a49; border-color:#e4a84c; }
+.map-zoom-controls span { min-width:42px; text-align:center; }
+@media(max-width:700px) {
+  .map-zoom-controls button { min-height:38px; min-width:40px; }
+}
