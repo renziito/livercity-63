@@ -171,6 +171,8 @@ function createBuildingGeometry(way: OSMWay, index: number) {
   return {
     geometry,
     color: buildingColor(way.tags, index),
+    height,
+    points,
     collider: new THREE.Box3(
       new THREE.Vector3(minX - 0.15, 0, minZ - 0.15),
       new THREE.Vector3(maxX + 0.15, height + 0.5, maxZ + 0.15)
@@ -201,6 +203,8 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
   group.add(sidewalkMesh);
 
   const byColor = new Map<string, THREE.BufferGeometry[]>();
+  const windowMatrices: THREE.Matrix4[] = [];
+  const windowAnchor = new THREE.Object3D();
   buildings.forEach((way, index) => {
     const result = createBuildingGeometry(way, index);
     if (!result) return;
@@ -208,6 +212,26 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
     list.push(result.geometry);
     byColor.set(result.color, list);
     colliders.push(result.collider);
+
+    const floors = Math.min(4, Math.max(1, Math.floor(result.height / 3)));
+    for (let edge = 0; edge < result.points.length; edge++) {
+      const a = result.points[edge];
+      const b = result.points[(edge + 1) % result.points.length];
+      const dx = b.x - a.x, dz = b.z - a.z;
+      const length = Math.hypot(dx, dz);
+      if (length < 4.8) continue;
+      const count = Math.min(3, Math.max(1, Math.floor(length / 4.8)));
+      for (let floor = 0; floor < floors; floor++) {
+        for (let n = 0; n < count; n++) {
+          const t = (n + 1) / (count + 1);
+          windowAnchor.position.set(a.x + dx * t, 1.75 + floor * 2.7, a.z + dz * t);
+          windowAnchor.rotation.set(0, Math.atan2(-dz, dx), 0);
+          windowAnchor.scale.set(1, 1, 1);
+          windowAnchor.updateMatrix();
+          windowMatrices.push(windowAnchor.matrix.clone());
+        }
+      }
+    }
   });
 
   for (const [color, geometries] of byColor) {
@@ -222,7 +246,19 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
     group.add(mesh);
   }
 
-  console.info(`LiverCity OSM loaded: ${roads.length} roads, ${buildings.length} building footprints.`);
+  if (windowMatrices.length) {
+    const windowMesh = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(0.85, 1.1, 0.08),
+      new THREE.MeshStandardMaterial({ color: '#2c4146', roughness: 0.38, metalness: 0.18 }),
+      windowMatrices.length
+    );
+    windowMatrices.forEach((matrix, index) => windowMesh.setMatrixAt(index, matrix));
+    windowMesh.instanceMatrix.needsUpdate = true;
+    windowMesh.name = 'OSM building windows';
+    group.add(windowMesh);
+  }
+
+  console.info(`LiverCity OSM loaded: ${roads.length} roads, ${buildings.length} building footprints, ${windowMatrices.length} windows.`);
   window.dispatchEvent(new CustomEvent('livercity-world-ready', {
     detail: { roads: roads.length, buildings: buildings.length }
   }));
