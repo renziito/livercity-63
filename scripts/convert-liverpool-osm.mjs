@@ -29,10 +29,13 @@ function addBuilding(tags, coordinates) {
   const ring = coordinates.slice(0, -1);
   const center = ring.reduce((sum, point) => [sum[0] + point[0] / ring.length, sum[1] + point[1] / ring.length], [0, 0]);
   if (!buildingZones.some(zone => center[0] >= zone.west && center[0] <= zone.east && center[1] >= zone.south && center[1] <= zone.north)) return;
-  const longitudes = ring.map(point => point[0]);
-  const latitudes = ring.map(point => point[1]);
-  const widthMeters = (Math.max(...longitudes) - Math.min(...longitudes)) * 111320 * Math.cos(center[1] * Math.PI / 180);
-  const depthMeters = (Math.max(...latitudes) - Math.min(...latitudes)) * 111320;
+  let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const point of ring) {
+    minLon = Math.min(minLon, point[0]); maxLon = Math.max(maxLon, point[0]);
+    minLat = Math.min(minLat, point[1]); maxLat = Math.max(maxLat, point[1]);
+  }
+  const widthMeters = (maxLon - minLon) * 111320 * Math.cos(center[1] * Math.PI / 180);
+  const depthMeters = (maxLat - minLat) * 111320;
   if (widthMeters * depthMeters < 18) return;
   const first = coordinates[0];
   const last = coordinates[coordinates.length - 1];
