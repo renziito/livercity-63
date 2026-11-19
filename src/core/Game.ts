@@ -61,6 +61,7 @@ export class Game {
     const startButton = document.getElementById('start-button') as HTMLButtonElement | null;
     if (startButton) startButton.disabled = true;
     city.ready.then(() => {
+      this.player.setSpawnPosition(city.spawnPosition);
       if (startButton) {
         startButton.disabled = false;
         startButton.innerHTML = 'ENTRAR A LIVERCITY <span>→</span>';
@@ -69,7 +70,7 @@ export class Game {
       console.error('LiverCity world data unavailable:', error);
       window.dispatchEvent(new CustomEvent('livercity-world-error', { detail: String(error) }));
     });
-    this.player = new Player(this.scene, this.camera, city.colliders);
+    this.player = new Player(this.scene, this.camera, city.colliders, city.walkableSegments);
     this.missions = new MissionManager();
     this.ui = new UI(this.missions);
 
