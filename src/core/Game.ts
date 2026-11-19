@@ -77,12 +77,24 @@ export class Game {
     const target = this.player.nearest(this.interactables, 3.2);
     if (!target) return;
     const id = target.userData.interactionId as string;
+
     if (id === gameVariables.characters.john.id) {
       this.ui.openProtagonistDialogue();
-    } else if (id === 'club') {
-      this.ui.notify(`${gameVariables.places.cavernClub.displayName} is nearby. ${gameVariables.characters.john.displayName} is waiting.`);
-    } else if (id === 'recordshop') {
-      this.ui.notify(`${gameVariables.places.recordShop.displayName} — browse the latest records.`);
+      return;
+    }
+
+    if (id === 'recordshop') {
+      if (this.missions.stage === 'to-shop') {
+        this.missions.findInstrument();
+        this.ui.notify('INSTRUMENT FOUND · RETURN TO JACK');
+      } else {
+        this.ui.notify(`${gameVariables.places.recordShop.displayName} — browse the latest records.`);
+      }
+      return;
+    }
+
+    if (id === 'club') {
+      this.ui.notify(`${gameVariables.places.cavernClub.displayName} is nearby.`);
     }
   }
 
@@ -93,8 +105,7 @@ export class Game {
       this.player.update(dt);
       const target = this.player.nearest(this.interactables, 3.2);
       this.ui.setInteraction(target ? (target.userData.prompt as string || 'INTERACT') : '');
-      this.missions.update(this.player.group.position);
-      this.ui.updateMap(this.player.getPosition());
+      this.ui.updateMap(this.player.getPosition(), this.missions.target, this.missions.stage);
       this.ui.refresh();
     }
     this.renderer.render(this.scene, this.camera);
