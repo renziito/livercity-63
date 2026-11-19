@@ -4,6 +4,7 @@ import { buildCity } from '../world/City';
 import { Player } from '../player/Player';
 import { MissionManager } from '../missions/MissionManager';
 import { UI } from '../ui/UI';
+import { LIVERPOOL_LOCATIONS } from '../data/locations';
 
 export class Game {
   scene = new THREE.Scene();
@@ -76,6 +77,7 @@ export class Game {
   private interact() {
     const target = this.player.nearest(this.interactables, 3.2);
     if (!target) return;
+
     const id = target.userData.interactionId as string;
     const lookAt = target.userData.lookAt as THREE.Vector3 | undefined;
     const targetPosition = lookAt ?? target.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 2, 0));
@@ -89,32 +91,12 @@ export class Game {
     if (this.missions.stage === 'to-shop' && id === this.missions.currentMission?.targetId) {
       this.missions.findInstrument();
       this.ui.notify('¡OBJETIVO CUMPLIDO! · REGRESA CON JACK');
-      return;
     }
 
-    if (id === 'recordshop') {
-      this.ui.notify(`${gameVariables.places.recordShop.displayName} — presiona E para explorar.`);
-      return;
+    const location = LIVERPOOL_LOCATIONS.find((place) => place.id === id);
+    if (location) {
+      this.ui.openLocation(location.id);
     }
-
-    if (id === 'club' || id === 'cavern') {
-      this.ui.notify(`${gameVariables.places.cavernClub.displayName} · presiona E para explorar.`);
-      return;
-    }
-
-    const places: Record<string,string> = {
-      jacaranda: 'The Jacaranda',
-      'pier-head': 'Pier Head y la estatua de los Beatles',
-      'albert-dock': 'Royal Albert Dock',
-      'beatles-story': 'The Beatles Story',
-      'penny-lane': gameVariables.places.pennyLane.displayName,
-      'st-peters': gameVariables.places.stPetersChurch.displayName,
-      'strawberry-field': 'Strawberry Field',
-      mendips: 'Mendips',
-      'forthlin-road': '20 Forthlin Road',
-      casbah: gameVariables.places.casbahCoffeeClub.displayName
-    };
-    if (places[id]) this.ui.notify(`${places[id]} · HISTORIA DE LIVERCITY`);
   }
 
   private animate = () => {
