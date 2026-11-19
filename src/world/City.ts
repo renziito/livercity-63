@@ -28,7 +28,7 @@ function makeBuilding(parent: THREE.Group, x: number, z: number, w: number, d: n
   return { building: b, collider };
 }
 
-function addLandmark(parent: THREE.Group, interactables: THREE.Object3D[], colliders: THREE.Box3[], id: string, name: string, x: number, z: number, color: string, prompt = 'EXPLORE') {
+function addLandmark(parent: THREE.Group, interactables: THREE.Object3D[], colliders: THREE.Box3[], id: string, name: string, x: number, z: number, color: string, prompt = 'EXPLORAR') {
   const { building, collider } = makeBuilding(parent, x, z, 10, 8, 8, color, Math.round(x+z));
   colliders.push(collider);
   const sign = addBox(building, 0, 5.5, -4.12, 6.8, 0.9, 0.16, '#253337');
@@ -130,10 +130,10 @@ export function buildCity() {
   }
 
   // City-centre and waterfront landmarks.
-  addLandmark(group,interactables,colliders,'cavern',gameVariables.places.cavernClub.displayName,-26,-9,'#9b5948','VISIT');
+  addLandmark(group,interactables,colliders,'cavern',gameVariables.places.cavernClub.displayName,-26,-9,'#9b5948','VISITAR');
   addLandmark(group,interactables,colliders,'jacaranda','The Jacaranda',-38,8,'#98744f','VISIT');
-  addLandmark(group,interactables,colliders,'pier-head','Pier Head & Beatles Statue',-67,-28,'#b6a58a','INSPECT');
-  addLandmark(group,interactables,colliders,'albert-dock','Royal Albert Dock',-53,-40,'#9b6b52','EXPLORE');
+  addLandmark(group,interactables,colliders,'pier-head','Pier Head & Beatles Statue',-67,-28,'#b6a58a','CONOCER');
+  addLandmark(group,interactables,colliders,'albert-dock','Royal Albert Dock',-53,-40,'#9b6b52','EXPLORAR');
   addLandmark(group,interactables,colliders,'beatles-story','The Beatles Story',-44,-42,'#7d8c84','VISIT');
   addLandmark(group,interactables,colliders,'recordshop',gameVariables.places.recordShop.displayName,8,-5,'#71877d','VISIT');
 
