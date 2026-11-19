@@ -3,6 +3,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { gameVariables } from '../data/variables';
 import { LIVERPOOL_LOCATIONS } from '../data/locations';
 import { LIVERPOOL_SATELLITE_URL, WORLD_SIZE, geoToWorld } from '../data/geography';
+import type { WalkableSegment } from './navigation';
 
 type OSMWay = {
   id: number;
@@ -180,7 +181,7 @@ function createBuildingGeometry(way: OSMWay, index: number) {
   };
 }
 
-async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
+async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], spawnPosition: THREE.Vector3) {
   const dataUrl = new URL('data/liverpool-osm.json', document.baseURI);
   const response = await fetch(dataUrl);
   if (!response.ok) throw new Error('No se pudo cargar el extracto OpenStreetMap (' + response.status + ')');
@@ -189,6 +190,51 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
 
   const roads = data.roads.filter(way => way.coordinates.length >= 2);
   const buildings = data.buildings.filter(way => way.coordinates.length >= 4);
+
+  // The pedestrian navigation mesh follows mapped public streets and footpaths.
+  // Motorways, private roads and ways explicitly closed to pedestrians are excluded.
+  const pedestrianWays = roads.filter((way) =>
+    !['no', 'private'].includes(way.tags.access ?? '') &&
+    way.tags.foot !== 'no' &&
+    !['motorway', 'motorway_link', 'trunk_link', 'raceway', 'construction'].includes(way.tags.highway)
+  );
+  const footways = new Set(['footway', 'path', 'pedestrian', 'steps', 'living_street', 'cycleway']);
+  for (const way of pedestrianWays) {
+    const coords = way.coordinates.map(([lon, lat]) => geoToWorld({ lon, lat }));
+    const halfWidth = footways.has(way.tags.highway)
+      ? Math.max(1.05, roadWidth(way.tags) / 2)
+      : roadWidth(way.tags) / 2 + 1.35;
+    for (let i = 0; i < coords.length - 1; i++) {
+      const a = coords[i], b = coords[i + 1];
+      if (Math.hypot(b.x - a.x, b.z - a.z) > 0.5) {
+        walkableSegments.push({ ax: a.x, az: a.z, bx: b.x, bz: b.z, halfWidth });
+      }
+    }
+  }
+
+  if (!walkableSegments.length) throw new Error('OpenStreetMap no contiene calles peatonales transitables.');
+  // Begin in central Liverpool, at a real mapped street close to Lime Street.
+  const requestedStart = geoToWorld({ lat: 53.40815, lon: -2.97915 });
+  let nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number } | null = null;
+  for (const segment of walkableSegments) {
+    const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
+    const lengthSq = dx * dx + dz * dz;
+    if (lengthSq < 0.01) continue;
+    const length = Math.sqrt(lengthSq);
+    const t = THREE.MathUtils.clamp(((requestedStart.x - segment.ax) * dx + (requestedStart.z - segment.az) * dz) / lengthSq, 0, 1);
+    const x = segment.ax + dx * t, z = segment.az + dz * t;
+    const distance = Math.hypot(requestedStart.x - x, requestedStart.z - z);
+    if (!nearest || distance < nearest.distance) {
+      let nx = -dz / length, nz = dx / length;
+      if ((requestedStart.x - x) * nx + (requestedStart.z - z) * nz < 0) { nx *= -1; nz *= -1; }
+      nearest = { x, z, distance, nx, nz, tx: dx / length, tz: dz / length, halfWidth: segment.halfWidth };
+    }
+  }
+  if (!nearest) throw new Error('No se encontró una calle adecuada para el punto inicial.');
+  const pavementOffset = Math.max(0.8, nearest.halfWidth - 0.9);
+  spawnPosition.set(nearest.x + nearest.nx * pavementOffset - nearest.tx * 1.2, 0, nearest.z + nearest.nz * pavementOffset - nearest.tz * 1.2);
+  const stop = createBusStop(group, nearest.x + nearest.nx * pavementOffset + nearest.tx * 2.0, nearest.z + nearest.nz * pavementOffset + nearest.tz * 2.0, Math.atan2(nearest.tx, nearest.tz));
+  stop.name = 'Lime Street bus stop';
 
   const roadGeometry = createRibbonGeometry(roads, false);
   const roadMesh = new THREE.Mesh(roadGeometry, material('#34383a'));
@@ -264,6 +310,45 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[]) {
   }));
 }
 
+function createBusStop(parent: THREE.Group, x: number, z: number, rotation: number) {
+  const stop = new THREE.Group();
+  stop.position.set(x, 0, z);
+  stop.rotation.y = rotation;
+  const metal = material('#26383b', 0.55);
+  const glass = new THREE.MeshStandardMaterial({ color: '#9bb5b5', roughness: 0.2, metalness: 0.15, transparent: true, opacity: 0.34 });
+  const yellow = material('#e4b34f', 0.65);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 2.8, 8), metal);
+  pole.position.set(-1.25, 1.4, 0);
+  pole.castShadow = true;
+  stop.add(pole);
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.72, 0.09), yellow);
+  sign.position.set(-1.25, 2.65, 0);
+  sign.castShadow = true;
+  stop.add(sign);
+  const signFace = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.56, 0.025), material('#243c48', 0.6));
+  signFace.position.set(-1.25, 2.65, 0.06);
+  stop.add(signFace);
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.14, 1.55), metal);
+  roof.position.set(0.35, 2.65, 0);
+  roof.castShadow = true;
+  stop.add(roof);
+  const back = new THREE.Mesh(new THREE.BoxGeometry(3.3, 1.85, 0.07), glass);
+  back.position.set(0.35, 1.68, -0.68);
+  stop.add(back);
+  const side = new THREE.Mesh(new THREE.BoxGeometry(0.07, 1.85, 1.35), glass);
+  side.position.set(1.95, 1.68, 0);
+  stop.add(side);
+  const bench = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.13, 0.42), material('#70513c'));
+  bench.position.set(0.25, 0.62, -0.32);
+  bench.castShadow = true;
+  stop.add(bench);
+  const legs = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.58, 0.12), metal);
+  legs.position.set(0.25, 0.32, -0.32);
+  stop.add(legs);
+  parent.add(stop);
+  return stop;
+}
+
 function makeLandmark(parent: THREE.Group, location: typeof LIVERPOOL_LOCATIONS[number], seed: number, colliders: THREE.Box3[]) {
   const { x, z } = location.world;
   const building = new THREE.Group();
@@ -308,6 +393,8 @@ export function buildCity() {
   const group = new THREE.Group();
   const interactables: THREE.Object3D[] = [];
   const colliders: THREE.Box3[] = [];
+  const walkableSegments: WalkableSegment[] = [];
+  const spawnPosition = new THREE.Vector3();
 
   const groundMaterial = material('#8a9183');
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_SIZE.width, WORLD_SIZE.depth), groundMaterial);
@@ -326,7 +413,7 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders);
+  const ready = loadOpenStreetMap(group, colliders, walkableSegments, spawnPosition);
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
@@ -355,5 +442,5 @@ export function buildCity() {
   group.add(jack);
   interactables.push(jack);
 
-  return { group, interactables, colliders, ready };
+  return { group, interactables, colliders, walkableSegments, spawnPosition, ready };
 }
