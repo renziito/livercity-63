@@ -372,8 +372,8 @@ function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interacta
   const hub = new THREE.Group();
   hub.position.copy(position);
   hub.name = 'Lime Street Station · Beatles travel gates';
-  const frame = material('#253a3c', 0.5);
-  const brass = material('#c59a56', 0.55);
+  const frame = '#253a3c';
+  const brass = '#c59a56';
   addBox(hub, 0, 2.3, -0.35, 15.8, 0.32, 0.55, brass);
   addBox(hub, -7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
   addBox(hub, 7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
@@ -403,7 +403,7 @@ function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interacta
     const z = row === 0 ? -0.08 : -3.55;
     const gate = new THREE.Group();
     gate.position.set(x, 0.25, z);
-    const gateFrame = material(destination.color, 0.48);
+    const gateFrame = destination.color;
     const glow = new THREE.MeshStandardMaterial({ color: destination.color, emissive: destination.color, emissiveIntensity: 0.42, transparent: true, opacity: 0.72, roughness: 0.25 });
     addBox(gate, -1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
     addBox(gate, 1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
