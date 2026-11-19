@@ -88,23 +88,23 @@ export class Game {
 
     if (this.missions.stage === 'to-shop' && id === this.missions.currentMission?.targetId) {
       this.missions.findInstrument();
-      this.ui.notify('OBJECTIVE COMPLETE · RETURN TO JACK');
+      this.ui.notify('¡OBJETIVO CUMPLIDO! · REGRESA CON JACK');
       return;
     }
 
     if (id === 'recordshop') {
-      this.ui.notify(`${gameVariables.places.recordShop.displayName} — press E to explore.`);
+      this.ui.notify(`${gameVariables.places.recordShop.displayName} — presiona E para explorar.`);
       return;
     }
 
     if (id === 'club' || id === 'cavern') {
-      this.ui.notify(`${gameVariables.places.cavernClub.displayName} · press E to explore.`);
+      this.ui.notify(`${gameVariables.places.cavernClub.displayName} · presiona E para explorar.`);
       return;
     }
 
     const places: Record<string,string> = {
       jacaranda: 'The Jacaranda',
-      'pier-head': 'Pier Head & Beatles Statue',
+      'pier-head': 'Pier Head y la estatua de los Beatles',
       'albert-dock': 'Royal Albert Dock',
       'beatles-story': 'The Beatles Story',
       'penny-lane': gameVariables.places.pennyLane.displayName,
@@ -114,7 +114,7 @@ export class Game {
       'forthlin-road': '20 Forthlin Road',
       casbah: gameVariables.places.casbahCoffeeClub.displayName
     };
-    if (places[id]) this.ui.notify(`${places[id]} · LIVER CITY HISTORY`);
+    if (places[id]) this.ui.notify(`${places[id]} · HISTORIA DE LIVERCITY`);
   }
 
   private animate = () => {
