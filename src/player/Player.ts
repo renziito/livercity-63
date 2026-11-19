@@ -147,12 +147,11 @@ export class Player {
 
     if (movement.lengthSq() > 0) {
       movement.normalize();
-      const angle = Math.atan2(movement.x, movement.z) + this.cameraYaw;
+      // Forward is always relative to the current camera/player heading.
+      // The camera yaw is applied once here; camera follow uses the resulting player heading.
+      const angle = Math.atan2(movement.x, movement.z) + Math.PI + this.cameraYaw;
       const distance = (isRunning ? 7.2 : 4.2) * dt;
-      const deltaX = Math.sin(angle) * distance;
-      const deltaZ = Math.cos(angle) * distance;
-
-      this.moveWithCollisions(deltaX, deltaZ);
+      this.moveWithCollisions(Math.sin(angle) * distance, Math.cos(angle) * distance);
       this.group.rotation.y = angle;
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
@@ -180,11 +179,10 @@ export class Player {
   }
 
   private updateCamera(dt: number) {
-    const desiredYaw = this.group.rotation.y + this.cameraYaw;
     const offset = new THREE.Vector3(
-      Math.sin(desiredYaw + Math.PI) * 6.5,
+      Math.sin(this.group.rotation.y + Math.PI) * 6.5,
       3.6,
-      Math.cos(desiredYaw + Math.PI) * 6.5
+      Math.cos(this.group.rotation.y + Math.PI) * 6.5
     );
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
