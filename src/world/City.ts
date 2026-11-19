@@ -289,10 +289,7 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders).catch(error => {
-    console.error('LiverCity: no se pudo construir la ciudad desde OpenStreetMap.', error);
-    window.dispatchEvent(new CustomEvent('livercity-world-error', { detail: String(error) }));
-  });
+  const ready = loadOpenStreetMap(group, colliders);
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
