@@ -86,19 +86,23 @@ export class Game {
       return;
     }
 
+    if (this.missions.stage === 'to-shop' && id === this.missions.currentMission?.targetId) {
+      this.missions.findInstrument();
+      this.ui.notify('OBJECTIVE COMPLETE · RETURN TO JACK');
+      return;
+    }
+
     if (id === 'recordshop') {
-      if (this.missions.stage === 'to-shop') {
-        this.missions.findInstrument();
-        this.ui.notify('INSTRUMENT FOUND · RETURN TO JACK');
-      } else {
-        this.ui.notify(`${gameVariables.places.recordShop.displayName} — browse the latest records.`);
-      }
+      this.ui.notify(`${gameVariables.places.recordShop.displayName} — press E to explore.`);
+      return;
+    }
+
+    if (id === 'club' || id === 'cavern') {
+      this.ui.notify(`${gameVariables.places.cavernClub.displayName} · press E to explore.`);
       return;
     }
 
     const places: Record<string,string> = {
-      cavern: gameVariables.places.cavernClub.displayName,
-      club: gameVariables.places.cavernClub.displayName,
       jacaranda: 'The Jacaranda',
       'pier-head': 'Pier Head & Beatles Statue',
       'albert-dock': 'Royal Albert Dock',
