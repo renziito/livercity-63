@@ -96,9 +96,21 @@ export class Game {
       return;
     }
 
-    if (id === 'club' || id === 'cavern') {
-      this.ui.notify(`${gameVariables.places.cavernClub.displayName} is nearby.`);
-    }
+    const places: Record<string,string> = {
+      cavern: gameVariables.places.cavernClub.displayName,
+      club: gameVariables.places.cavernClub.displayName,
+      jacaranda: 'The Jacaranda',
+      'pier-head': 'Pier Head & Beatles Statue',
+      'albert-dock': 'Royal Albert Dock',
+      'beatles-story': 'The Beatles Story',
+      'penny-lane': gameVariables.places.pennyLane.displayName,
+      'st-peters': gameVariables.places.stPetersChurch.displayName,
+      'strawberry-field': 'Strawberry Field',
+      mendips: 'Mendips',
+      'forthlin-road': '20 Forthlin Road',
+      casbah: gameVariables.places.casbahCoffeeClub.displayName
+    };
+    if (places[id]) this.ui.notify(`${places[id]} · LIVER CITY HISTORY`);
   }
 
   private animate = () => {
