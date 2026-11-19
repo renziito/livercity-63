@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { geoToWorld } from '../data/geography';
 
 type MoveKey = 'forward' | 'back' | 'left' | 'right';
 
@@ -46,7 +47,8 @@ export class Player {
     legs.position.set(0, 0.28, 0);
     this.group.add(legs);
 
-    this.group.position.set(0, 0, 20);
+    const wooltonStart = geoToWorld({ lat: 53.37597, lon: -2.86948 });
+    this.group.position.set(wooltonStart.x + 2.5, 0, wooltonStart.z + 10);
     this.group.rotation.y = 0;
     scene.add(this.group);
 
@@ -176,16 +178,16 @@ export class Player {
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
 
-    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -122, 122);
-    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -102, 102);
+    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -130, 130);
+    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -115, 115);
     this.updateCamera(dt);
   }
 
   private moveWithCollisions(deltaX: number, deltaZ: number) {
-    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -122, 122);
+    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -130, 130);
     if (!this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
 
-    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -102, 102);
+    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -115, 115);
     if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
   }
 
