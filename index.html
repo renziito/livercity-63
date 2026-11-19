@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#182329" />
+    <meta name="description" content="A stylized music adventure inspired by real events in the history of The Beatles. The game title is provisional." />
+    <title>LIVERLIGHT '67 — working title</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game" aria-label="Game world"></canvas>
+      <div id="loading" class="loading"><div class="loading-mark">L<span>✦</span>67</div><p>BUILDING THE CITY...</p></div>
+      <header class="topbar"><div class="brand">LIVERLIGHT <b>'67</b></div><div class="chapter">CHAPTER 01 <span>·</span> THE FIRST NOTE</div><button id="map-button" class="icon-button" aria-label="Show map">MAP</button></header>
+      <section class="mission-card"><div class="eyebrow">CURRENT OBJECTIVE</div><h1 id="mission-title">A NEW FACE IN WOOLTON</h1><p id="mission-copy">Find Jack near the church fête and begin the story.</p><div class="progress"><i id="mission-progress"></i></div></section>
+      <div class="interaction" id="interaction" hidden><span class="keycap">E</span><span id="interaction-copy">Talk</span></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="bottom-left"><div class="location-label">LIVERPOOL <span>—</span> OLD QUARTER</div><div class="hint" id="hint">WASD move · Mouse look · E interact · Shift run</div></div>
+      <div class="bottom-right"><div class="cash">£<span id="cash">0</span></div><div class="rep">REPUTATION <b id="rep">0</b></div></div>
+      <div id="dialogue" class="dialogue" hidden><div class="dialogue-inner"><div class="eyebrow" id="speaker">JACK LENNER</div><p id="dialogue-text"></p><button id="dialogue-next" class="primary-button">CONTINUE <span>→</span></button></div></div>
+      <div id="map-panel" class="map-panel" hidden><div class="map-heading">OLD QUARTER <button id="map-close" class="icon-button">CLOSE ×</button></div><div class="map-art"><span class="map-road road-a"></span><span class="map-road road-b"></span><span class="map-pin pin-club">THE CAVERN CLUB</span><span class="map-pin pin-player">YOU</span><span class="map-pin pin-shop">RECORDS</span></div><p>Explore the neighborhood and find the club.</p></div>
+      <div class="mobile-controls" id="mobile-controls"><div class="dpad"><button data-move="forward">▲</button><div><button data-move="left">◀</button><button data-move="back">▼</button><button data-move="right">▶</button></div></div><div class="mobile-actions"><button data-action="run">RUN</button><button data-action="interact">E</button></div><div class="look-zone" id="look-zone"></div></div>
+      <div id="start-screen" class="start-screen"><div class="start-content"><div class="start-kicker">A NEW SOUND IS RISING</div><div class="start-logo">LIVERLIGHT<br><span>'67</span></div><p>A city of music. A night to remember.<br>Your story starts here.</p><button id="start-button" class="primary-button">ENTER THE CITY <span>→</span></button><small>WORKING TITLE · SUBJECT TO CHANGE</small></div></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
