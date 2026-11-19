@@ -50,8 +50,8 @@ export class MissionManager {
 
   get target() {
     if (this.stage === 'to-shop') return { x: 8, z: -11, label: gameVariables.places.recordShop.displayName };
-    if (this.stage === 'return-to-jack') return { x: -12, z: -1, label: gameVariables.characters.john.displayName };
-    if (this.stage === 'available') return { x: -12, z: -1, label: gameVariables.characters.john.displayName };
+    if (this.stage === 'return-to-jack') return { x: 85, z: 26.5, label: gameVariables.characters.john.displayName };
+    if (this.stage === 'available') return { x: 85, z: 26.5, label: gameVariables.characters.john.displayName };
     return null;
   }
 
