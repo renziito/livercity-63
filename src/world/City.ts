@@ -107,7 +107,8 @@ function createSidewalkGeometry(ways: OSMWay[]) {
           b.x + px * outer, 0.12, b.z + pz * outer,
           b.x + px * inner, 0.12, b.z + pz * inner
         );
-        indices.push(vertex, vertex + 1, vertex + 2, vertex, vertex + 2, vertex + 3);
+        if (side > 0) indices.push(vertex, vertex + 1, vertex + 2, vertex, vertex + 2, vertex + 3);
+        else indices.push(vertex, vertex + 2, vertex + 1, vertex, vertex + 3, vertex + 2);
         vertex += 4;
       }
     }
