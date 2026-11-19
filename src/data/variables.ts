@@ -1,10 +1,9 @@
 /**
  * Editable project/story variables.
- * The current game title is provisional. Change game.title when branding is decided.
  * Fictionalized names for people, groups and song titles are kept here; real locations stay real.
  */
 export const gameVariables = {
-  game: { title: "LIVERLIGHT '67", subtitle: 'THE STORY BEHIND THE MUSIC', tagline: 'Four lives. One revolution. A story told from the inside.' },
+  game: { title: 'LiverCity', subtitle: 'THE STORY BEHIND THE MUSIC', tagline: 'Four lives. One revolution. A story told from the inside.' },
   chapters: [
     { id:'early-days', title:'EARLY DAYS', years:'1956–1962', description:'Before the world knew their name.', levels:[
       {id:'john-early',characterId:'john',title:'THE QUARRYMEN YEARS',years:'1956–1957'},
