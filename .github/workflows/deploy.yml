@@ -22,9 +22,17 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Restore cached Liverpool OSM geometry
+        id: osm-cache
+        uses: actions/cache@v4
+        with:
+          path: public/data/liverpool-osm.json
+          key: livercity-osm-v1-${{ hashFiles('scripts/convert-liverpool-osm.mjs') }}
       - name: Install Osmium tools
+        if: steps.osm-cache.outputs.cache-hit != 'true'
         run: sudo apt-get update && sudo apt-get install -y osmium-tool
       - name: Download and process Merseyside OpenStreetMap extract
+        if: steps.osm-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p tmp
           curl -fL --retry 3 --retry-delay 3 https://download.geofabrik.de/europe/united-kingdom/england/merseyside-latest.osm.pbf -o tmp/merseyside.osm.pbf
