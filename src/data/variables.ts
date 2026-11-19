@@ -78,6 +78,13 @@ export const gameVariables = {
     newYork:{id:'new-york',displayName:'New York',country:'United States'},
     india:{id:'india',displayName:'India',country:'India'}
   },
+  missionTemplates: [
+    { suffix:'meet', title:'A FIRST ENCOUNTER', objective:'Meet the people who will shape the sound.', targetId:'john', date:'1957-07-06', reward:10 },
+    { suffix:'venue', title:'FIND THE NEXT STAGE', objective:'Visit a historic music venue and learn its story.', targetId:'cavern', date:'1957-1959', reward:15 },
+    { suffix:'streets', title:'THE STREETS REMEMBER', objective:'Explore a landmark street and speak to a local.', targetId:'penny-lane', date:'1957-1960', reward:15 },
+    { suffix:'friends', title:'A NEW FRIEND', objective:'Find another musician and hear their side of the story.', targetId:'casbah', date:'1958-1960', reward:20 },
+    { suffix:'performance', title:'READY FOR THE NEXT SHOW', objective:'Return to the meeting point and prepare for the performance.', targetId:'st-peters', date:'1960-1962', reward:25 }
+  ],
   openingMission:{
     id:'first-encounter',title:'A NEW FACE IN WOOLTON',
     description:'Find Jack near the church fête and begin the story.',
