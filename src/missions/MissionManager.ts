@@ -1,33 +1,30 @@
 import { gameVariables } from '../data/variables';
-import * as THREE from 'three';
+
+export type MissionStage = 'available' | 'to-shop' | 'return-to-jack' | 'completed';
 
 export class MissionManager {
-  title: string = gameVariables.openingMission.title;
-  copy: string = gameVariables.openingMission.description;
-  progress = 0;
+  stage: MissionStage = 'available';
   cash = 0;
   reputation = 0;
-  completed = false;
-  private started = false;
 
-  update(position: THREE.Vector3) {
-    if (this.completed || this.started) return;
+  get target() {
+    if (this.stage === 'to-shop') return { x: 5, z: 8, label: gameVariables.places.recordShop.displayName };
+    if (this.stage === 'return-to-jack') return { x: -1.5, z: -13.7, label: gameVariables.characters.john.displayName };
+    return null;
+  }
 
-    const distance = position.distanceTo(new THREE.Vector3(-1.5, 0, -13.7));
-    if (distance < 3.2) {
-      this.progress = 1;
-    }
+  acceptFirstMission() {
+    if (this.stage === 'available') this.stage = 'to-shop';
+  }
+
+  findInstrument() {
+    if (this.stage === 'to-shop') this.stage = 'return-to-jack';
   }
 
   completeFirstMission() {
-    if (this.completed) return;
-
-    this.completed = true;
-    this.started = true;
-    this.title = 'THE FIRST ENCOUNTER';
-    this.copy = `${gameVariables.characters.john.displayName} has a plan. Your story in ${gameVariables.places.liverpool.displayName} is just beginning.`;
-    this.cash = gameVariables.openingMission.rewardCash;
-    this.reputation = gameVariables.openingMission.rewardReputation;
-    this.progress = 1;
+    if (this.stage !== 'return-to-jack') return;
+    this.stage = 'completed';
+    this.cash += gameVariables.openingMission.rewardCash;
+    this.reputation += gameVariables.openingMission.rewardReputation;
   }
 }
