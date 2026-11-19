@@ -17,8 +17,7 @@ function box(parent: THREE.Group, x: number, y: number, z: number, w: number, h:
 
 function addRoad(parent: THREE.Group, x: number, z: number, length: number, width: number, rotation: number) {
   const road = new THREE.Mesh(new THREE.PlaneGeometry(width, length), mat('#343a3b'));
-  road.rotation.x = -Math.PI / 2;
-  road.rotation.z = rotation;
+  road.rotation.set(-Math.PI / 2, rotation, 0);
   road.position.set(x, 0.015, z);
   road.receiveShadow = true;
   parent.add(road);
