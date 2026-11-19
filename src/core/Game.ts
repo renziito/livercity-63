@@ -97,6 +97,12 @@ export class Game {
       this.ui.closeTravel();
       this.ui.notify('LLEGASTE A ' + journey.destination.label.toUpperCase() + ' · EXPLORA ESTA ZONA');
     });
+    window.addEventListener('livercity-return-station', () => {
+      this.player.setWalkableSegments(this.city.walkableSegments);
+      this.player.setSpawnPosition(this.city.spawnPosition);
+      this.ui.closeTravel();
+      this.ui.notify('LIME STREET STATION · PUERTAS DE VIAJE');
+    });
     window.addEventListener('resize', this.resize);
     window.visualViewport?.addEventListener('resize', this.resize);
     this.player.setEnabled(false);
