@@ -79,7 +79,7 @@ export const gameVariables = {
     india:{id:'india',displayName:'India',country:'India'}
   },
   missionTemplates: [
-    { suffix:'meet', title:'A FIRST ENCOUNTER', objective:'Meet the people who will shape the sound.', targetId:'john', date:'1957-07-06', reward:10 },
+    { suffix:'meet', title:'A FIRST ENCOUNTER', objective:'Find the instrument needed for the next performance.', targetId:'recordshop', date:'1957-07-06', reward:10 },
     { suffix:'venue', title:'FIND THE NEXT STAGE', objective:'Visit a historic music venue and learn its story.', targetId:'cavern', date:'1957-1959', reward:15 },
     { suffix:'streets', title:'THE STREETS REMEMBER', objective:'Explore a landmark street and speak to a local.', targetId:'penny-lane', date:'1957-1960', reward:15 },
     { suffix:'friends', title:'A NEW FRIEND', objective:'Find another musician and hear their side of the story.', targetId:'casbah', date:'1958-1960', reward:20 },
