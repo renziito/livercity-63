@@ -77,6 +77,9 @@ export class Game {
     const target = this.player.nearest(this.interactables, 3.2);
     if (!target) return;
     const id = target.userData.interactionId as string;
+    const lookAt = target.userData.lookAt as THREE.Vector3 | undefined;
+    const targetPosition = lookAt ?? target.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 2, 0));
+    this.player.lookAtInteraction(targetPosition);
 
     if (id === gameVariables.characters.john.id) {
       this.ui.openProtagonistDialogue();
@@ -93,7 +96,7 @@ export class Game {
       return;
     }
 
-    if (id === 'club') {
+    if (id === 'club' || id === 'cavern') {
       this.ui.notify(`${gameVariables.places.cavernClub.displayName} is nearby.`);
     }
   }
