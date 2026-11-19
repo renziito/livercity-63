@@ -180,10 +180,12 @@ export class Player {
   }
 
   private updateCamera(dt: number) {
+    // The character faces local -Z, so the camera must stay behind it on +Z.
+    // This keeps the visible camera direction and W/ArrowUp movement aligned.
     const offset = new THREE.Vector3(
-      Math.sin(this.group.rotation.y + Math.PI) * 6.5,
+      Math.sin(this.group.rotation.y) * 6.5,
       3.6,
-      Math.cos(this.group.rotation.y + Math.PI) * 6.5
+      Math.cos(this.group.rotation.y) * 6.5
     );
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
