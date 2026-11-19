@@ -81,3 +81,14 @@ html, body, #app { min-height: 100%; height: 100%; }
 /* Place pins aligned with the world-coordinate map grid */
 .map-art .pin-club { left:31%; top:20%; }
 .map-art .pin-shop { left:55%; top:66%; right:auto; bottom:auto; }
+
+
+/* Explicitly keep hidden full-screen layers from covering the rendered world. */
+#dialogue[hidden], #map-panel[hidden], #interaction[hidden], #loading[hidden] {
+  display: none !important;
+}
+#start-screen.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
