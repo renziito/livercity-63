@@ -35,7 +35,13 @@ jobs:
         if: steps.osm-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p tmp
-          curl -fL --retry 3 --retry-delay 3 https://download.geofabrik.de/europe/united-kingdom/england/merseyside-latest.osm.pbf -o tmp/merseyside.osm.pbf
+          for url in \
+            https://download.bbbike.org/osm/bbbike/Liverpool/Liverpool.osm.pbf \
+            https://download-ext2.geofabrik.de/europe/united-kingdom/england/merseyside-latest.osm.pbf \
+            https://download.geofabrik.de/europe/united-kingdom/england/merseyside-latest.osm.pbf; do
+            if curl -fL --connect-timeout 20 --max-time 240 --retry 1 --retry-delay 2 "$url" -o tmp/merseyside.osm.pbf; then break; fi
+          done
+          test -s tmp/merseyside.osm.pbf
           osmium extract --bbox -3.02,53.355,-2.85,53.445 tmp/merseyside.osm.pbf -o tmp/liverpool-area.osm.pbf
           osmium tags-filter tmp/liverpool-area.osm.pbf w/highway a/building -o tmp/liverpool-filtered.osm.pbf
           osmium export tmp/liverpool-filtered.osm.pbf -o tmp/liverpool.geojson
