@@ -5,7 +5,8 @@ export const LIVERPOOL_BOUNDS = {
   north: 53.445
 } as const;
 
-export const WORLD_SIZE = { width: 260, depth: 230 } as const;
+// World units are metres so landmark buildings and the player retain believable scale.
+export const WORLD_SIZE = { width: 11300, depth: 10000 } as const;
 
 export type GeoPoint = { lat: number; lon: number };
 export type WorldPoint = { x: number; z: number };
