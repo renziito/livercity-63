@@ -8,7 +8,7 @@ import { LIVERPOOL_LOCATIONS } from '../data/locations';
 
 export class Game {
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 180);
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer: THREE.WebGLRenderer;
   player: Player;
   missions: MissionManager;
@@ -41,7 +41,7 @@ export class Game {
     this.renderer.toneMappingExposure = 1.12;
 
     this.scene.background = new THREE.Color('#9fb4b0');
-    this.scene.fog = new THREE.Fog('#9fb4b0', 36, 105);
+    this.scene.fog = new THREE.Fog('#9fb4b0', 180, 620);
     this.camera.position.set(0, 5, 9);
     this.scene.add(new THREE.HemisphereLight('#fff1d4', '#48545a', 2.1));
 
