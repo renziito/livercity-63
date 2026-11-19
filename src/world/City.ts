@@ -248,7 +248,11 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
     const list = byColor.get(result.color) ?? [];
     list.push(result.geometry);
     byColor.set(result.color, list);
-    colliders.push(result.collider);
+    // Do not use the footprint's axis-aligned bounding box as a solid collider.
+    // Liverpool's rotated/concave building footprints create enormous false-positive
+    // rectangles that can cover nearby streets and trap the player at spawn.
+    // Landmark colliders remain enabled; OSM buildings stay visual until polygon
+    // collision is implemented.
 
     const floors = Math.min(4, Math.max(1, Math.floor(result.height / 3)));
     for (let edge = 0; edge < result.points.length; edge++) {
