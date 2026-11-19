@@ -147,9 +147,17 @@ export class Player {
     this.enabled = value;
   }
 
+  setWalkableSegments(segments: WalkableSegment[]) {
+    this.walkableSegments = segments;
+  }
+
   setSpawnPosition(position: THREE.Vector3) {
     this.group.position.copy(position);
     this.group.rotation.y = 0;
+    this.cameraYaw = 0;
+    this.keys.clear();
+    this.moveTouch.clear();
+    this.interactionLook = null;
     const target = position.clone().add(new THREE.Vector3(0, 1.35, 0));
     this.camera.position.copy(target).add(new THREE.Vector3(0, 3.6, 6.5));
     this.camera.lookAt(target);
