@@ -132,6 +132,24 @@ const rawLocations = [
     gallery: []
   },
   {
+    id: 'ringo-home', name: '9 Madryn Street · Casa natal de Ringo Starr', shortName: 'MADRYN STREET',
+    address: '9 Madryn Street, Toxteth, Liverpool L8 3TT, Reino Unido',
+    lat: 53.38872, lon: -2.95966,
+    description: 'La casa adosada donde nació Ringo Starr el 7 de julio de 1940, en el barrio de Toxteth.',
+    historicalNote: 'La vivienda forma parte de las Welsh Streets y fue conservada y restaurada. Es una residencia privada: se explora desde la vía pública y se debe respetar a sus ocupantes.',
+    prompt: 'EXPLORAR', color: '#8da18e', streetViewHeading: 180, streetViewPitch: 0,
+    gallery: []
+  },
+  {
+    id: 'george-home', name: '12 Arnold Grove · Casa natal de George Harrison', shortName: 'ARNOLD GROVE',
+    address: '12 Arnold Grove, Wavertree, Liverpool L15 8HP, Reino Unido',
+    lat: 53.39897, lon: -2.916643,
+    description: 'La pequeña casa adosada donde nació George Harrison y vivió durante sus primeros años.',
+    historicalNote: 'La vivienda está en un tranquilo callejón sin salida de Wavertree y cuenta con una placa azul de Historic England. Es una residencia privada: se visita desde la calle.',
+    prompt: 'EXPLORAR', color: '#b98c65', streetViewHeading: 180, streetViewPitch: 0,
+    gallery: []
+  },
+  {
     id: 'casbah', name: 'Casbah Coffee Club', shortName: 'CASBAH',
     address: "8 Hayman's Green, West Derby, Liverpool L12 7JG, Reino Unido",
     lat: 53.432425, lon: -2.911977,
