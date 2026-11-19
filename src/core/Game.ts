@@ -16,6 +16,7 @@ export class Game {
   clock = new THREE.Clock();
   interactables: THREE.Object3D[] = [];
   started = false;
+  private city: ReturnType<typeof buildCity>;
 
   private resize = () => {
     const width = window.visualViewport?.width ?? window.innerWidth;
@@ -56,6 +57,7 @@ export class Game {
     this.scene.add(sun);
 
     const city = buildCity();
+    this.city = city;
     this.scene.add(city.group);
     this.interactables = city.interactables;
     const startButton = document.getElementById('start-button') as HTMLButtonElement | null;
@@ -82,6 +84,19 @@ export class Game {
     this.ui.bindMap(() => this.ui.toggleMap());
     window.addEventListener('livercity-location-open', () => this.player.setEnabled(false));
     window.addEventListener('livercity-location-close', () => this.player.setEnabled(this.started));
+    window.addEventListener('livercity-travel-selected', (event) => {
+      const destinationId = (event as CustomEvent<{ id: string }>).detail?.id;
+      if (!destinationId) return;
+      const journey = this.city.travelTo(destinationId);
+      if (!journey) {
+        this.ui.notify('No se encontró una calle peatonal para este destino.');
+        return;
+      }
+      this.player.setWalkableSegments(journey.walkableSegments);
+      this.player.setSpawnPosition(journey.position);
+      this.ui.closeTravel();
+      this.ui.notify('LLEGASTE A ' + journey.destination.label.toUpperCase() + ' · EXPLORA ESTA ZONA');
+    });
     window.addEventListener('resize', this.resize);
     window.visualViewport?.addEventListener('resize', this.resize);
     this.player.setEnabled(false);
@@ -96,6 +111,11 @@ export class Game {
     const lookAt = target.userData.lookAt as THREE.Vector3 | undefined;
     const targetPosition = lookAt ?? target.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 2, 0));
     this.player.lookAtInteraction(targetPosition);
+
+    if (id === 'travel-hub') {
+      this.ui.openTravel();
+      return;
+    }
 
     if (id === gameVariables.characters.john.id) {
       this.ui.openProtagonistDialogue();
