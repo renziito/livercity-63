@@ -193,10 +193,14 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
 
   // The pedestrian navigation mesh follows mapped public streets and footpaths.
   // Motorways, private roads and ways explicitly closed to pedestrians are excluded.
+  const pedestrianHighways = new Set([
+    'primary', 'secondary', 'tertiary', 'residential', 'unclassified',
+    'living_street', 'service', 'pedestrian', 'footway', 'path', 'steps', 'cycleway'
+  ]);
   const pedestrianWays = roads.filter((way) =>
+    pedestrianHighways.has(way.tags.highway) &&
     !['no', 'private'].includes(way.tags.access ?? '') &&
-    way.tags.foot !== 'no' &&
-    !['motorway', 'motorway_link', 'trunk_link', 'raceway', 'construction'].includes(way.tags.highway)
+    way.tags.foot !== 'no'
   );
   const footways = new Set(['footway', 'path', 'pedestrian', 'steps', 'living_street', 'cycleway']);
   for (const way of pedestrianWays) {
