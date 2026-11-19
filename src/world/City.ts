@@ -36,7 +36,7 @@ function addLandmark(parent: THREE.Group, interactables: THREE.Object3D[], colli
   const marker = new THREE.Group();
   marker.position.set(x, 0, z - 6.2);
   marker.userData.interactionId = id;
-  marker.userData.prompt = `E · ${prompt} ${name.toUpperCase()}`;
+  marker.userData.prompt = `${prompt} ${name.toUpperCase()}`;
   marker.userData.lookAt = new THREE.Vector3(x, 2.5, z);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.08, 8, 32), new THREE.MeshBasicMaterial({color:'#e6b45e'}));
   ring.rotation.x = Math.PI / 2;
@@ -167,7 +167,7 @@ export function buildCity() {
   const jack = new THREE.Group();
   jack.position.set(85,0,18.5);
   jack.userData.interactionId = gameVariables.characters.john.id;
-  jack.userData.prompt = `E · TALK TO ${gameVariables.characters.john.displayName.toUpperCase()}`;
+  jack.userData.prompt = `TALK TO ${gameVariables.characters.john.displayName.toUpperCase()}`;
   jack.userData.lookAt = new THREE.Vector3(85,1.7,18.5);
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.36,0.9,4,8),material('#344b50'));
   body.position.y=0.92; jack.add(body);
