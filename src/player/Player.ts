@@ -14,6 +14,7 @@ export class Player {
   private lookPointer: number | null = null;
   private lastX = 0;
   private interactionLook: THREE.Vector3 | null = null;
+  private interactionLookUntil = 0;
   private readonly radius = 0.42;
 
   constructor(
@@ -175,16 +176,16 @@ export class Player {
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
 
-    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -27, 27);
-    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -32, 32);
+    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -122, 122);
+    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -102, 102);
     this.updateCamera(dt);
   }
 
   private moveWithCollisions(deltaX: number, deltaZ: number) {
-    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -27, 27);
+    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -122, 122);
     if (!this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
 
-    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -32, 32);
+    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -102, 102);
     if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
   }
 
@@ -204,6 +205,7 @@ export class Player {
       direction.normalize();
       this.cameraYaw = Math.atan2(-direction.x, -direction.z);
       this.interactionLook = target.clone();
+      this.interactionLookUntil = performance.now() + 1800;
     }
   }
 
@@ -217,7 +219,9 @@ export class Player {
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
     this.camera.position.lerp(desired, 1 - Math.exp(-5 * dt));
-    this.camera.lookAt(this.interactionLook ?? target);
+    const focus = this.interactionLook && performance.now() < this.interactionLookUntil ? this.interactionLook : target;
+    if (focus === target) this.interactionLook = null;
+    this.camera.lookAt(focus);
   }
 
   nearest(objects: THREE.Object3D[], range: number) {
