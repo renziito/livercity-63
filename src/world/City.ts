@@ -225,7 +225,7 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   const nearest = stationSpawn.nearest;
   const stop = createBusStop(group, nearest.x + nearest.nx * nearest.halfWidth + nearest.tx * 2.0, nearest.z + nearest.nz * nearest.halfWidth + nearest.tz * 2.0, Math.atan2(nearest.tx, nearest.tz));
   stop.name = 'Lime Street Station bus stop';
-  createTravelHub(group, spawnPosition, interactables);
+  createTravelHub(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
 
   const roadGeometry = createRibbonGeometry(roads, false);
   const roadMesh = new THREE.Mesh(roadGeometry, material('#34383a'));
