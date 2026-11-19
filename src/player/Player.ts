@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { geoToWorld } from '../data/geography';
+import { isWalkableAt, type WalkableSegment } from '../world/navigation';
 
 type MoveKey = 'forward' | 'back' | 'left' | 'right';
 
@@ -21,7 +21,8 @@ export class Player {
   constructor(
     private scene: THREE.Scene,
     private camera: THREE.PerspectiveCamera,
-    private colliders: THREE.Box3[]
+    private colliders: THREE.Box3[],
+    private walkableSegments: WalkableSegment[]
   ) {
     const jacket = new THREE.MeshStandardMaterial({ color: '#d0a15f', flatShading: true });
     const skin = new THREE.MeshStandardMaterial({ color: '#d9ad86', flatShading: true });
@@ -47,8 +48,7 @@ export class Player {
     legs.position.set(0, 0.28, 0);
     this.group.add(legs);
 
-    const wooltonStart = geoToWorld({ lat: 53.37597, lon: -2.86948 });
-    this.group.position.set(wooltonStart.x + 2.5, 0, wooltonStart.z + 10);
+    this.group.position.set(0, 0, 0);
     this.group.rotation.y = 0;
     scene.add(this.group);
 
@@ -147,6 +147,14 @@ export class Player {
     this.enabled = value;
   }
 
+  setSpawnPosition(position: THREE.Vector3) {
+    this.group.position.copy(position);
+    this.group.rotation.y = 0;
+    const target = position.clone().add(new THREE.Vector3(0, 1.35, 0));
+    this.camera.position.copy(target).add(new THREE.Vector3(0, 3.6, 6.5));
+    this.camera.lookAt(target);
+  }
+
   update(dt: number) {
     if (!this.enabled) return;
 
@@ -185,10 +193,10 @@ export class Player {
 
   private moveWithCollisions(deltaX: number, deltaZ: number) {
     const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -5650, 5650);
-    if (!this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
+    if (isWalkableAt(nextX, this.group.position.z, this.walkableSegments) && !this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
 
     const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -5000, 5000);
-    if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
+    if (isWalkableAt(this.group.position.x, nextZ, this.walkableSegments) && !this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
   }
 
   private collides(x: number, z: number) {
