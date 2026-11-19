@@ -97,9 +97,18 @@ export class UI {
 
   openProtagonistDialogue() {
     if (this.missions.stage === 'available') {
+      const mission = this.missions.currentMission;
+      if (!mission) {
+        this.notify('ALL MISSIONS IN THIS LEVEL COMPLETE');
+        return;
+      }
       this.dialogueMode = 'offer';
       this.step = 0;
-      this.speaker.textContent = gameVariables.characters.john.displayName.toUpperCase();
+      const character = gameVariables.characters[mission.characterId as keyof typeof gameVariables.characters];
+      this.dialogueLines = mission.id.endsWith('-meet')
+        ? [...gameVariables.openingMission.dialogue]
+        : [mission.title, mission.objective, `This chapter covers ${mission.historicalDate}. Let's keep the story moving.`];
+      this.speaker.textContent = character.displayName.toUpperCase();
       this.dialogueText.textContent = this.dialogueLines[0];
       document.getElementById('dialogue-next')!.textContent = 'CONTINUE →';
       this.dialogue.hidden = false;
@@ -109,7 +118,9 @@ export class UI {
 
     if (this.missions.stage === 'return-to-jack') {
       this.missions.completeFirstMission();
-      this.notify('MISSION COMPLETE · REPUTATION +' + this.missions.reputation);
+      this.notify(this.missions.currentMission
+        ? 'MISSION COMPLETE · NEXT MISSION AVAILABLE'
+        : 'LEVEL COMPLETE · ALL MISSIONS FINISHED');
       this.refresh();
       return;
     }
@@ -126,7 +137,8 @@ export class UI {
     this.missions.acceptFirstMission();
     this.dialogue.hidden = true;
     this.dialogueMode = 'none';
-    this.notify('MISSION ACCEPTED · GO TO NEEDLE & GROOVE');
+    const target = this.missions.target;
+    this.notify(`MISSION ACCEPTED · GO TO ${target?.label.toUpperCase() ?? 'THE OBJECTIVE'}`);
     this.refresh();
   }
 
