@@ -68,7 +68,7 @@ function createRibbonGeometry(ways: OSMWay[], sidewalks: boolean) {
         b.x - px, y, b.z - pz,
         b.x + px, y, b.z + pz
       );
-      indices.push(vertex, vertex + 1, vertex + 2, vertex, vertex + 2, vertex + 3);
+      indices.push(vertex, vertex + 2, vertex + 1, vertex, vertex + 3, vertex + 2);
       vertex += 4;
     }
   }
