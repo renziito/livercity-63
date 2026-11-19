@@ -226,18 +226,32 @@ export class Player {
     const nextX = THREE.MathUtils.clamp(currentX + deltaX, -5650, 5650);
     const nextZ = THREE.MathUtils.clamp(currentZ + deltaZ, -5000, 5000);
 
-    // Prefer the complete movement vector so angled streets and intersections feel natural.
-    if (isWalkableAt(nextX, nextZ, this.walkableSegments) && !this.collides(nextX, nextZ)) {
+    // OSM pedestrian segments are a navigation aid, not a hard movement lock.
+    // Some mapped ways have incomplete widths or disconnected centre-lines; never
+    // let that data freeze the player. Building collision boxes remain authoritative.
+    const destinationWalkable = !this.walkableSegments.length || isWalkableAt(nextX, nextZ, this.walkableSegments);
+    if (destinationWalkable && !this.collides(nextX, nextZ)) {
       this.group.position.set(nextX, this.group.position.y, nextZ);
       return;
     }
 
-    // Slide along a building edge or pavement boundary instead of stopping abruptly.
-    if (isWalkableAt(nextX, currentZ, this.walkableSegments) && !this.collides(nextX, currentZ)) {
+    // First try sliding along the mapped pavement. If OSM rejects both axes,
+    // allow collision-safe movement so the player can still leave the spawn point.
+    let moved = false;
+    if (!this.collides(nextX, currentZ) &&
+        (!this.walkableSegments.length || isWalkableAt(nextX, currentZ, this.walkableSegments))) {
       this.group.position.x = nextX;
+      moved = true;
     }
-    if (isWalkableAt(this.group.position.x, nextZ, this.walkableSegments) && !this.collides(this.group.position.x, nextZ)) {
+    if (!this.collides(this.group.position.x, nextZ) &&
+        (!this.walkableSegments.length || isWalkableAt(this.group.position.x, nextZ, this.walkableSegments))) {
       this.group.position.z = nextZ;
+      moved = true;
+    }
+
+    if (!moved) {
+      if (!this.collides(nextX, currentZ)) this.group.position.x = nextX;
+      if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
     }
   }
 
