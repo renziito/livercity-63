@@ -68,6 +68,8 @@ export class Game {
     });
     this.ui.bindInteract(() => this.interact());
     this.ui.bindMap(() => this.ui.toggleMap());
+    window.addEventListener('livercity-location-open', () => this.player.setEnabled(false));
+    window.addEventListener('livercity-location-close', () => this.player.setEnabled(this.started));
     window.addEventListener('resize', this.resize);
     window.visualViewport?.addEventListener('resize', this.resize);
     this.player.setEnabled(false);
