@@ -26,7 +26,7 @@
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <div class="bottom-left">
         <div class="location-label">LIVERCITY <span>—</span> DISTRITOS HISTÓRICOS</div>
-        <div class="hint" id="hint">WASD / FLECHAS caminar por calles y aceras · Mouse mirar · E explorar · Shift correr</div>
+        <div class="hint" id="hint">WASD / FLECHAS caminar · Mouse mirar · E interactuar · Shift correr</div>
         <div class="map-data-credit">LIVERPOOL REAL · CALLES PEATONALES · © OPENSTREETMAP · ODbL</div>
       </div>
       <div class="bottom-right"><div class="cash">£<span id="cash">0</span></div><div class="rep">REPUTACIÓN <b id="rep">0</b></div></div>
@@ -51,6 +51,16 @@
         <p>Selecciona un punto para abrir su ficha, Street View y galería curada.</p>
         <small class="map-attribution">Calles y edificios: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors · ODbL</a>. Imagen satelital © Esri.</small>
       </div>
+      <section id="travel-panel" class="travel-panel" hidden aria-modal="true" role="dialog" aria-labelledby="travel-title">
+        <div class="travel-panel-inner">
+          <header class="travel-header">
+            <div><div class="eyebrow">LIME STREET STATION · FAST TRAVEL</div><h2 id="travel-title">¿A dónde vamos?</h2><p>Elige una puerta para viajar directamente a una zona histórica. Cada destino tiene su propio pequeño barrio explorable.</p></div>
+            <button id="travel-close" class="icon-button" aria-label="Cerrar puertas de viaje">CERRAR ×</button>
+          </header>
+          <div id="travel-destinations" class="travel-destinations"></div>
+          <p class="travel-footnote">Las casas son residencias privadas. Explora sus calles desde el espacio público y respeta a sus habitantes.</p>
+        </div>
+      </section>
       <section id="location-panel" class="location-panel" hidden aria-modal="true" role="dialog" aria-labelledby="location-name">
         <div class="location-panel-inner">
           <header class="location-header">
@@ -93,7 +103,7 @@
         <div class="start-content">
           <div class="start-kicker">ESTÁ NACIENDO UN NUEVO SONIDO</div>
           <div class="start-logo">LiverCity</div>
-          <p>Liverpool, 1957. Bajas del autobús y la ciudad te espera.<br />Recorre sus calles. Descubre dónde empezó todo.</p>
+          <p>Liverpool, 1957. Llegas a Lime Street Station.<br />Elige una puerta y descubre los lugares donde nació la historia.</p>
           <button id="start-button" class="primary-button" disabled>PREPARANDO LIVERPOOL…</button>
           <small>INSPIRADO EN HECHOS REALES</small>
         </div>
