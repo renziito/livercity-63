@@ -44,7 +44,7 @@ export class Player {
     this.group.add(legs);
 
     this.group.position.set(0, 0, 20);
-    this.group.rotation.y = Math.PI;
+    this.group.rotation.y = 0;
     scene.add(this.group);
 
     window.addEventListener('keydown', (event) => {
@@ -149,10 +149,11 @@ export class Player {
       movement.normalize();
       // Forward is always relative to the current camera/player heading.
       // The camera yaw is applied once here; camera follow uses the resulting player heading.
-      const angle = Math.atan2(movement.x, movement.z) + Math.PI + this.cameraYaw;
+      const angle = this.group.rotation.y + this.cameraYaw + Math.atan2(movement.x, -movement.z);
       const distance = (isRunning ? 7.2 : 4.2) * dt;
-      this.moveWithCollisions(Math.sin(angle) * distance, Math.cos(angle) * distance);
+      this.moveWithCollisions(Math.sin(angle) * distance, -Math.cos(angle) * distance);
       this.group.rotation.y = angle;
+      this.cameraYaw = 0;
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
 
