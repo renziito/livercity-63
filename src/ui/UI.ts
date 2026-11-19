@@ -27,6 +27,7 @@ export class UI {
     document.getElementById('dialogue-next')!.addEventListener('click', () => this.nextDialogue());
     document.getElementById('map-close')!.addEventListener('click', () => this.toggleMap(false));
     document.getElementById('map-button')!.addEventListener('click', () => this.toggleMap());
+    document.getElementById('station-button')?.addEventListener('click', () => window.dispatchEvent(new Event('livercity-return-station')));
     document.getElementById('map-zoom-in')?.addEventListener('click', () => this.setMapZoom(0.35));
     document.getElementById('map-zoom-out')?.addEventListener('click', () => this.setMapZoom(-0.35));
     document.getElementById('map-zoom-reset')?.addEventListener('click', () => { this.mapZoom = 1; this.applyMapZoom(); });
