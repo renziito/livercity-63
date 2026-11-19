@@ -183,7 +183,7 @@ function createBuildingGeometry(way: OSMWay, index: number) {
 }
 
 async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], spawnPosition: THREE.Vector3, interactables: THREE.Object3D[]) {
-  const dataUrl = new URL('data/liverpool-osm.json', document.baseURI);
+  const dataUrl = new URL(`${import.meta.env.BASE_URL}data/liverpool-osm.json`, window.location.origin);
   const response = await fetch(dataUrl);
   if (!response.ok) throw new Error('No se pudo cargar el extracto OpenStreetMap (' + response.status + ')');
   const data = await response.json() as OSMData;
