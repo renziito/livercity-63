@@ -1,2 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700;900&family=Playfair+Display:wght@700;900&display=swap');
 :root{font-family:'DM Sans',sans-serif;color:#f6f0df;background:#182329;font-synthesis:none;text-rendering:optimizeLegibility}*{box-sizing:border-box}html,body,#app{margin:0;width:100%;height:100%;overflow:hidden}#game{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}.loading{position:absolute;inset:0;z-index:20;background:#182329;display:grid;place-content:center;text-align:center;transition:opacity .5s}.loading p,.start-kicker,.eyebrow,.chapter,.location-label,.hint,.cash,.rep,.map-heading,.map-panel p,.start-content small{font-family:'DM Mono',monospace;letter-spacing:.12em}.loading p{font-size:10px;color:#b9b6a8}.loading-mark{font-family:'Playfair Display',serif;font-size:48px;font-weight:900}.loading-mark span{color:#e4a84c}.topbar{position:absolute;top:0;left:0;right:0;height:68px;padding:0 28px;display:flex;align-items:center;gap:24px;background:linear-gradient(#10191dcc,transparent);z-index:3}.brand{font-weight:900;letter-spacing:.14em;font-size:13px}.brand b{color:#e9b45d}.chapter{font-size:9px;color:#d2cbbb;margin-left:auto}.chapter span{color:#e9b45d}.icon-button{border:1px solid #e6ddc65c;background:#1b292c99;color:#f6f0df;padding:9px 13px;font:10px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer}.mission-card{position:absolute;top:92px;left:28px;width:min(340px,calc(100vw - 56px));padding:17px 19px;background:#182329d9;border-left:3px solid #e4a84c;backdrop-filter:blur(10px);z-index:2}.eyebrow{font-size:9px;color:#e4a84c;letter-spacing:.18em}.mission-card h1{font-size:14px;letter-spacing:.08em;margin:9px 0 5px}.mission-card p{font-size:12px;color:#d0cbbb;line-height:1.5;margin:0}.progress{height:2px;background:#536064;margin-top:13px}.progress i{display:block;width:0;height:100%;background:#e4a84c;transition:width .3s}.interaction{position:absolute;left:50%;bottom:23%;transform:translateX(-50%);background:#182329e8;padding:10px 15px;display:flex;align-items:center;gap:10px;font-size:12px;z-index:4}.keycap{border:1px solid #e4a84c;color:#e4a84c;padding:4px 8px;font:12px 'DM Mono',monospace}.bottom-left,.bottom-right{position:absolute;bottom:25px;z-index:2;text-shadow:0 2px 8px #000}.bottom-left{left:28px}.location-label{font-size:10px;letter-spacing:.13em}.location-label span{color:#e4a84c}.hint{font-size:9px;color:#d0cbbb;margin-top:8px;letter-spacing:.03em}.bottom-right{right:28px;text-align:right}.cash{font-size:18px;color:#f1d59b}.rep{font-size:9px;color:#d0cbbb;margin-top:6px}.rep b{color:#e4a84c}.toast{position:absolute;top:47%;left:50%;transform:translate(-50%,-50%);background:#182329ed;border:1px solid #e4a84c;padding:12px 18px;font-size:12px;z-index:8;opacity:0;transition:opacity .2s;pointer-events:none}.toast.show{opacity:1}.dialogue{position:absolute;inset:0;background:#0b1118a8;display:grid;align-items:end;justify-items:center;z-index:9;padding:28px}.dialogue-inner{width:min(620px,100%);padding:24px 27px;background:#182329f5;border-top:2px solid #e4a84c;box-shadow:0 10px 50px #0008}.dialogue-inner p{font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,25px);line-height:1.4;margin:13px 0 22px}.primary-button{border:0;background:#e4a84c;color:#182329;padding:14px 19px;font:900 10px 'DM Mono',monospace;letter-spacing:.13em;cursor:pointer}.primary-button span{font-size:17px;margin-left:15px}.map-panel{position:absolute;right:25px;top:85px;width:min(330px,calc(100vw - 50px));padding:17px;background:#182329f2;z-index:7;border:1px solid #e4a84c66}.map-heading{display:flex;justify-content:space-between;align-items:center;font-size:10px}.map-art{height:190px;background:#d7c9a8;position:relative;overflow:hidden;margin:15px 0;color:#182329}.map-road{position:absolute;background:#8b9991;border:5px solid #d7c9a8}.road-a{width:130%;height:30px;top:75px;left:-20px;transform:rotate(-22deg)}.road-b{width:30px;height:130%;top:-20px;left:185px;transform:rotate(24deg)}.map-pin{position:absolute;font:8px 'DM Mono',monospace;background:#182329;color:#fff;padding:5px}.pin-club{top:38px;left:35px}.pin-player{top:120px;left:145px;background:#b44e3b}.pin-shop{bottom:23px;right:25px}.map-panel p{font-size:9px;color:#d0cbbb}.start-screen{position:absolute;inset:0;background:linear-gradient(90deg,#10191deF 0%,#10191d9c 48%,#10191d33 100%);display:flex;align-items:center;padding:8vw;z-index:10;transition:opacity .7s}.start-screen.hidden{opacity:0;pointer-events:none}.start-content{max-width:500px}.start-kicker{color:#e4a84c;font-size:10px}.start-logo{font:900 clamp(55px,10vw,112px)/.83 'Playfair Display',serif;letter-spacing:-.07em;margin:25px 0}.start-logo span{color:#e4a84c}.start-content p{color:#e2ddcf;font-size:15px;line-height:1.7;margin-bottom:27px}.start-content small{display:block;color:#a7aaa1;font-size:8px;margin-top:20px}.mobile-controls{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}.dpad,.mobile-actions{position:absolute;bottom:25px;pointer-events:auto}.dpad{left:18px}.dpad button,.mobile-actions button{width:43px;height:43px;margin:3px;border:1px solid #f2e5c877;background:#182329a8;color:#fff;border-radius:50%;font-size:14px;touch-action:none}.dpad>button{display:block;margin:0 auto 2px}.dpad div{display:flex}.mobile-actions{right:20px;display:flex;align-items:end}.mobile-actions button{width:55px;height:55px;font:10px 'DM Mono',monospace}.look-zone{position:absolute;right:0;top:25%;width:45%;height:48%;pointer-events:auto;touch-action:none}.mobile-controls button.active{background:#e4a84c;color:#182329}@media(max-width:700px){.topbar{height:55px;padding:0 15px}.brand{font-size:10px}.chapter{font-size:8px}.mission-card{top:70px;left:15px;padding:12px 14px;width:min(280px,calc(100vw - 30px))}.mission-card h1{font-size:11px}.mission-card p{font-size:10px}.bottom-left{left:15px;bottom:15px}.bottom-right{right:15px;bottom:15px}.hint{display:none}.location-label{font-size:8px}.cash{font-size:15px}.mobile-controls{display:block}.start-screen{padding:28px;background:linear-gradient(90deg,#10191deF,#10191d88)}.start-content p{font-size:13px}.dialogue{padding:12px}.dialogue-inner{padding:18px}.dialogue-inner p{font-size:19px}.interaction{bottom:125px}.chapter{display:none}}
+
+/* LiverCity responsive controls and live map */
+html, body, #app { min-height: 100%; height: 100%; }
+#game { touch-action: none; }
+.map-panel { max-height: min(78dvh, 520px); overflow-y: auto; }
+.map-legend { display:flex; gap:12px; flex-wrap:wrap; color:#d0cbbb; font:8px 'DM Mono',monospace; }
+.map-legend span { display:flex; align-items:center; gap:5px; }
+.map-legend i { display:inline-block; width:8px; height:8px; border-radius:50%; }
+.legend-player { background:#b44e3b; }
+.legend-objective { background:#e4a84c; }
+.legend-place { background:#536d62; }
+.map-art { height:230px; border:1px solid #9d987d; background:#d7c9a8; }
+.map-block { position:absolute; background:#a6a18b; border:2px solid #827e6c; border-radius:2px; }
+.block-west { left:8%; top:9%; width:24%; height:28%; }
+.block-east { right:8%; top:9%; width:24%; height:28%; }
+.block-northwest { left:8%; bottom:9%; width:24%; height:28%; }
+.block-northeast { right:8%; bottom:9%; width:24%; height:28%; }
+.map-road { position:absolute; background:#8b9991; border:0; }
+.road-main { left:0; top:44%; width:100%; height:17%; }
+.road-cross { left:43%; top:0; width:14%; height:100%; }
+.street-main { position:absolute; left:50%; top:49%; transform:translate(-50%,-50%); color:#34413d; font:7px 'DM Mono',monospace; white-space:nowrap; z-index:1; }
+.map-pin { z-index:2; font-size:7px; padding:4px 5px; }
+.pin-club { left:13%; top:22%; }
+.pin-shop { right:12%; bottom:20%; }
+.pin-john { left:58%; top:34%; background:#536d62; }
+.map-player { position:absolute; z-index:4; width:13px; height:13px; border:2px solid white; border-radius:50%; background:#b44e3b; box-shadow:0 0 0 4px #b44e3b55; transform:translate(-50%,-50%); transition:left .08s linear,top .08s linear; }
+.map-objective { position:absolute; z-index:3; left:50%; top:52%; color:#f0ad3e; font-size:22px; text-shadow:0 1px 3px #182329; transform-origin:center; }
+.map-panel p { line-height:1.6; }
+.mobile-controls { z-index:5; }
+.dpad, .mobile-actions { bottom:calc(18px + env(safe-area-inset-bottom)); }
+.dpad { left:calc(15px + env(safe-area-inset-left)); }
+.mobile-actions { right:calc(15px + env(safe-area-inset-right)); z-index:3; }
+.dpad button, .mobile-actions button { touch-action:none; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
+.dpad button { width:48px; height:48px; background:#182329d9; }
+.mobile-actions button { width:58px; height:58px; background:#182329e8; }
+.look-zone { top:18%; height:62%; width:48%; z-index:1; }
+.start-screen { padding-top: max(28px, env(safe-area-inset-top)); padding-bottom:max(28px, env(safe-area-inset-bottom)); }
+@media (max-width:700px) {
+  .topbar { padding-left:calc(12px + env(safe-area-inset-left)); padding-right:calc(12px + env(safe-area-inset-right)); }
+  .brand { font-size:11px; letter-spacing:.08em; }
+  .map-panel { left:12px; right:12px; top:calc(62px + env(safe-area-inset-top)); width:auto; padding:13px; }
+  .map-art { height: min(38dvh, 230px); min-height:165px; }
+  .mission-card { top:calc(65px + env(safe-area-inset-top)); }
+  .bottom-left { bottom:calc(12px + env(safe-area-inset-bottom)); }
+  .bottom-right { bottom:calc(12px + env(safe-area-inset-bottom)); }
+  .dialogue { padding:calc(10px + env(safe-area-inset-bottom)) 10px; }
+  .dialogue-inner { padding:16px; }
+  .dialogue-inner .primary-button { min-height:44px; }
+}
