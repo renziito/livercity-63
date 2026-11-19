@@ -56,7 +56,20 @@ export function buildCity() {
   // The playable world is a scaled, navigable interpretation of Liverpool's real street geography.
   // Central waterfront, compact city centre, southern suburbs and the north-west Casbah area
   // retain their relative direction and separation.
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(260, 220), material('#8c9a83'));
+  const groundMaterial = material('#ffffff');
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(260, 220), groundMaterial);
+  // Esri World Imagery satellite/aerial base for Liverpool. The 3D streets and buildings
+  // are placed over this real geographic reference; the texture falls back to the terrain
+  // material if the imagery service is temporarily unavailable.
+  const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-3.08,53.32,-2.80,53.47&bboxSR=4326&imageSR=4326&size=2048,2048&format=jpg&f=image';
+  const satelliteLoader = new THREE.TextureLoader();
+  satelliteLoader.setCrossOrigin('anonymous');
+  satelliteLoader.load(satelliteUrl, (texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    groundMaterial.map = texture;
+    groundMaterial.color.set('#ffffff');
+    groundMaterial.needsUpdate = true;
+  }, undefined, () => console.warn('LiverCity: satellite imagery unavailable; using procedural terrain.'));
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.1;
   ground.receiveShadow = true;
@@ -110,22 +123,22 @@ export function buildCity() {
   }
 
   // City-centre and waterfront landmarks.
-  addLandmark(group,interactables,colliders,'cavern',gameVariables.places.cavernClub.displayName,-18,-8,'#9b5948','VISIT');
-  addLandmark(group,interactables,colliders,'jacaranda','The Jacaranda',-38,16,'#98744f','VISIT');
-  addLandmark(group,interactables,colliders,'pier-head','Pier Head & Beatles Statue',-66,-28,'#b6a58a','INSPECT');
-  addLandmark(group,interactables,colliders,'albert-dock','Royal Albert Dock',-54,-47,'#9b6b52','EXPLORE');
-  addLandmark(group,interactables,colliders,'beatles-story','The Beatles Story',-43,-48,'#7d8c84','VISIT');
+  addLandmark(group,interactables,colliders,'cavern',gameVariables.places.cavernClub.displayName,-26,-9,'#9b5948','VISIT');
+  addLandmark(group,interactables,colliders,'jacaranda','The Jacaranda',-38,8,'#98744f','VISIT');
+  addLandmark(group,interactables,colliders,'pier-head','Pier Head & Beatles Statue',-67,-28,'#b6a58a','INSPECT');
+  addLandmark(group,interactables,colliders,'albert-dock','Royal Albert Dock',-53,-40,'#9b6b52','EXPLORE');
+  addLandmark(group,interactables,colliders,'beatles-story','The Beatles Story',-44,-42,'#7d8c84','VISIT');
   addLandmark(group,interactables,colliders,'recordshop',gameVariables.places.recordShop.displayName,8,-5,'#71877d','VISIT');
 
   // South Liverpool: Penny Lane, childhood-home area, St Peter's and Strawberry Field.
-  addLandmark(group,interactables,colliders,'penny-lane',gameVariables.places.pennyLane.displayName,42,45,'#b58a60','EXPLORE');
-  addLandmark(group,interactables,colliders,'st-peters',gameVariables.places.stPetersChurch.displayName,78,75,'#9a9b89','VISIT');
-  addLandmark(group,interactables,colliders,'strawberry-field','Strawberry Field',69,87,'#a65b4b','VISIT');
-  addLandmark(group,interactables,colliders,'mendips','Mendips · John Lennon childhood home',85,60,'#c0aa86','INSPECT');
-  addLandmark(group,interactables,colliders,'forthlin-road','20 Forthlin Road · Paul McCartney childhood home',55,66,'#b88c67','INSPECT');
+  addLandmark(group,interactables,colliders,'penny-lane',gameVariables.places.pennyLane.displayName,40,20,'#b58a60','EXPLORE');
+  addLandmark(group,interactables,colliders,'st-peters',gameVariables.places.stPetersChurch.displayName,85,35,'#9a9b89','VISIT');
+  addLandmark(group,interactables,colliders,'strawberry-field','Strawberry Field',82,43,'#a65b4b','VISIT');
+  addLandmark(group,interactables,colliders,'mendips','Mendips · John Lennon childhood home',92,29,'#c0aa86','INSPECT');
+  addLandmark(group,interactables,colliders,'forthlin-road','20 Forthlin Road · Paul McCartney childhood home',55,45,'#b88c67','INSPECT');
 
   // North-west: Casbah Coffee Club in West Derby.
-  addLandmark(group,interactables,colliders,'casbah',gameVariables.places.casbahCoffeeClub.displayName,78,-73,'#947a65','VISIT');
+  addLandmark(group,interactables,colliders,'casbah',gameVariables.places.casbahCoffeeClub.displayName,45,-50,'#947a65','VISIT');
 
   // Parks, rail corridors and green residential pockets.
   for (const [x,z,w,d] of [[28,5,26,20],[48,85,22,14],[96,28,18,26],[-5,80,20,18]] as number[][]) {
@@ -145,10 +158,10 @@ export function buildCity() {
 
   // Mission-giver NPC in the central district. All interactions are explicit E actions.
   const jack = new THREE.Group();
-  jack.position.set(-12,0,-1);
+  jack.position.set(-26,0,-3);
   jack.userData.interactionId = gameVariables.characters.john.id;
   jack.userData.prompt = `E · TALK TO ${gameVariables.characters.john.displayName.toUpperCase()}`;
-  jack.userData.lookAt = new THREE.Vector3(-12,1.7,-1);
+  jack.userData.lookAt = new THREE.Vector3(-26,1.7,-3);
   const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.36,0.9,4,8),material('#344b50'));
   body.position.y=0.92; jack.add(body);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.29,12,10),material('#d9ad86'));
