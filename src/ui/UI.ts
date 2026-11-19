@@ -72,6 +72,10 @@ export class UI {
       mission.className = 'map-mission';
       mission.dataset.mapMission = '';
       mission.textContent = 'J';
+      const jackPlace = LIVERPOOL_LOCATIONS.find((place) => place.id === 'st-peters')!;
+      const jackPoint = worldToMapPercent({ x: jackPlace.world.x, z: jackPlace.world.z + 10 });
+      mission.style.left = `${jackPoint.x}%`;
+      mission.style.top = `${jackPoint.y}%`;
       surface.appendChild(mission);
     });
   }
