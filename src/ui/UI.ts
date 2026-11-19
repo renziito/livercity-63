@@ -60,10 +60,10 @@ export class UI {
       player.style.top = `${Math.max(2, Math.min(98, y))}%`;
     }
     if (objective) {
-      const dx = -1.5 - position.x;
-      const dz = -13.7 - position.z;
-      const angle = Math.atan2(dx, -dz) * 180 / Math.PI;
-      objective.style.transform = `rotate(${angle}deg)`;
+      const targetX = ((-1.5 + 27) / 54) * 100;
+      const targetY = ((-13.7 + 32) / 64) * 100;
+      objective.style.left = `${targetX}%`;
+      objective.style.top = `${targetY}%`;
     }
   }
 
