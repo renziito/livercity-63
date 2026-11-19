@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir -p tmp
           curl -fL --retry 3 --retry-delay 3 https://download.geofabrik.de/europe/united-kingdom/england/merseyside-latest.osm.pbf -o tmp/merseyside.osm.pbf
-          osmium tags-filter tmp/merseyside.osm.pbf w/highway w/building -o tmp/liverpool-filtered.osm.pbf
+          osmium tags-filter tmp/merseyside.osm.pbf w/highway a/building -o tmp/liverpool-filtered.osm.pbf
           osmium export tmp/liverpool-filtered.osm.pbf -o tmp/liverpool.geojson
           npm run convert:osm
       - name: Typecheck and build
