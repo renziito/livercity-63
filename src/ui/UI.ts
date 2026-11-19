@@ -1,5 +1,6 @@
 import { gameVariables } from '../data/variables';
 import { LIVERPOOL_LOCATIONS } from '../data/locations';
+import { LIVERPOOL_TRAVEL_DESTINATIONS } from '../data/travel';
 import { LIVERPOOL_SATELLITE_URL, worldToMapPercent } from '../data/geography';
 import type { MissionManager } from '../missions/MissionManager';
 
@@ -14,6 +15,7 @@ export class UI {
   private dialogueLines: string[] = [...gameVariables.openingMission.dialogue];
   private dialogueMode: 'offer' | 'none' = 'none';
   private mapZoom = 1;
+  private travelBuilt = false;
 
   constructor(private missions: MissionManager) {
     document.title = gameVariables.game.title;
@@ -30,6 +32,8 @@ export class UI {
     document.getElementById('map-zoom-reset')?.addEventListener('click', () => { this.mapZoom = 1; this.applyMapZoom(); });
     document.getElementById('minimap')!.addEventListener('click', () => this.toggleMap(true));
     document.getElementById('location-close')!.addEventListener('click', () => this.closeLocation());
+    document.getElementById('travel-close')?.addEventListener('click', () => this.closeTravel());
+    this.buildTravelDoors();
     document.querySelector('[data-action="interact"]')?.addEventListener('click', () => {
       window.dispatchEvent(new Event('game-interact'));
     });
@@ -163,6 +167,51 @@ export class UI {
             ? 'MISIÓN · REGRESA CON JACK'
             : 'MISIÓN DEL NIVEL COMPLETADA';
     });
+  }
+
+  private buildTravelDoors() {
+    if (this.travelBuilt) return;
+    const grid = document.getElementById('travel-destinations');
+    if (!grid) return;
+    for (const destination of LIVERPOOL_TRAVEL_DESTINATIONS) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'travel-door';
+      button.dataset.travelId = destination.id;
+      button.style.setProperty('--door-color', destination.color);
+      const category = document.createElement('span');
+      category.className = 'travel-door-category';
+      category.textContent = destination.category;
+      const title = document.createElement('strong');
+      title.textContent = destination.label;
+      const subtitle = document.createElement('small');
+      subtitle.textContent = destination.subtitle;
+      const action = document.createElement('span');
+      action.className = 'travel-door-action';
+      action.textContent = 'ENTRAR →';
+      button.append(category, title, subtitle, action);
+      button.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('livercity-travel-selected', { detail: { id: destination.id } }));
+      });
+      grid.appendChild(button);
+    }
+    this.travelBuilt = true;
+  }
+
+  openTravel() {
+    this.toggleMap(false);
+    const panel = document.getElementById('travel-panel');
+    if (!panel) return;
+    panel.hidden = false;
+    window.dispatchEvent(new Event('livercity-location-open'));
+    this.setInteraction('');
+  }
+
+  closeTravel() {
+    const panel = document.getElementById('travel-panel');
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
+    window.dispatchEvent(new Event('livercity-location-close'));
   }
 
   openLocation(locationId: string) {
