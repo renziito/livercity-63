@@ -3,42 +3,42 @@
  * Fictionalized names for people, groups and song titles are kept here; real locations stay real.
  */
 export const gameVariables = {
-  game: { title: 'LiverCity', subtitle: 'THE STORY BEHIND THE MUSIC', tagline: 'Four lives. One revolution. A story told from the inside.' },
+  game: { title: 'LiverCity', subtitle: 'LA HISTORIA DETRÁS DE LA MÚSICA', tagline: 'Cuatro vidas. Una revolución musical. Vive la historia desde adentro.' },
   chapters: [
-    { id:'early-days', title:'EARLY DAYS', years:'1956–1962', description:'Before the world knew their name.', levels:[
-      {id:'john-early',characterId:'john',title:'THE QUARRYMEN YEARS',years:'1956–1957'},
-      {id:'paul-early',characterId:'paul',title:'THE NEW KID',years:'1957–1958'},
-      {id:'george-early',characterId:'george',title:'THE YOUNG GUITARIST',years:'1958–1960'},
-      {id:'ringo-early',characterId:'ringo',title:'THE FINAL PIECE',years:'1960–1962'}]},
-    { id:'the-beatles', title:'THE BEATLES!', years:'1962–1966', description:'The records, the crowds and the world changing overnight.', levels:[
-      {id:'john-fame',characterId:'john',title:'THE VOICE',years:'1962–1966'},
-      {id:'paul-fame',characterId:'paul',title:'THE MELODY',years:'1962–1966'},
-      {id:'george-fame',characterId:'george',title:'THE LEAD GUITAR',years:'1962–1966'},
-      {id:'ringo-fame',characterId:'ringo',title:'THE BEAT',years:'1962–1966'}]},
-    { id:'no-more-concerts', title:'NO MORE CONCERTS!', years:'1966–1967', description:'The stage falls silent. The studio becomes the world.', levels:[
-      {id:'john-studio',characterId:'john',title:'BEYOND THE STAGE',years:'1966–1967'},
-      {id:'paul-studio',characterId:'paul',title:'THE STUDIO',years:'1966–1967'},
-      {id:'george-studio',characterId:'george',title:'WITHIN AND BEYOND',years:'1966–1967'},
-      {id:'ringo-studio',characterId:'ringo',title:'A DIFFERENT BEAT',years:'1966–1967'}]},
-    { id:'and-in-the-end', title:'AND IN THE END...', years:'1967–1970', description:'The final recordings, changing friendships and four new paths.', levels:[
-      {id:'john-end',characterId:'john',title:'A NEW DIRECTION',years:'1967–1970'},
-      {id:'paul-end',characterId:'paul',title:'THE LAST DAYS',years:'1967–1970'},
-      {id:'george-end',characterId:'george',title:'ALL THINGS MUST PASS',years:'1967–1970'},
-      {id:'ringo-end',characterId:'ringo',title:'THE LAST CHAPTER',years:'1967–1970'}]}
+    { id:'early-days', title:'LOS PRIMEROS AÑOS', years:'1956–1962', description:'Antes de que el mundo conociera su nombre.', levels:[
+      {id:'john-early',characterId:'john',title:'LOS AÑOS DE LOS QUARRYMEN',years:'1956–1957'},
+      {id:'paul-early',characterId:'paul',title:'EL NUEVO DEL GRUPO',years:'1957–1958'},
+      {id:'george-early',characterId:'george',title:'EL GUITARRISTA MÁS JOVEN',years:'1958–1960'},
+      {id:'ringo-early',characterId:'ringo',title:'LA ÚLTIMA PIEZA',years:'1960–1962'}]},
+    { id:'the-beatles', title:'¡LA BEATLEMANÍA!', years:'1962–1966', description:'Discos, multitudes y un mundo que cambió de la noche a la mañana.', levels:[
+      {id:'john-fame',characterId:'john',title:'LA VOZ',years:'1962–1966'},
+      {id:'paul-fame',characterId:'paul',title:'LA MELODÍA',years:'1962–1966'},
+      {id:'george-fame',characterId:'george',title:'LA GUITARRA PRINCIPAL',years:'1962–1966'},
+      {id:'ringo-fame',characterId:'ringo',title:'EL RITMO',years:'1962–1966'}]},
+    { id:'no-more-concerts', title:'¡SE APAGAN LOS ESCENARIOS!', years:'1966–1967', description:'Los escenarios quedan en silencio. El estudio se convierte en su mundo.', levels:[
+      {id:'john-studio',characterId:'john',title:'MÁS ALLÁ DEL ESCENARIO',years:'1966–1967'},
+      {id:'paul-studio',characterId:'paul',title:'EL ESTUDIO',years:'1966–1967'},
+      {id:'george-studio',characterId:'george',title:'HACIA ADENTRO Y MÁS ALLÁ',years:'1966–1967'},
+      {id:'ringo-studio',characterId:'ringo',title:'OTRO RITMO',years:'1966–1967'}]},
+    { id:'and-in-the-end', title:'Y AL FINAL...', years:'1967–1970', description:'Las últimas grabaciones, amistades que cambian y cuatro caminos nuevos.', levels:[
+      {id:'john-end',characterId:'john',title:'UN NUEVO RUMBO',years:'1967–1970'},
+      {id:'paul-end',characterId:'paul',title:'LOS ÚLTIMOS DÍAS',years:'1967–1970'},
+      {id:'george-end',characterId:'george',title:'TODO PASA',years:'1967–1970'},
+      {id:'ringo-end',characterId:'ringo',title:'EL ÚLTIMO CAPÍTULO',years:'1967–1970'}]}
   ],
   characters: {
-    john:{id:'john',displayName:'Jack Lenner',shortName:'JACK',role:'Singer, rhythm guitarist and songwriter',description:'Sharp-witted, restless and fiercely imaginative.',color:'#b87945'},
-    paul:{id:'paul',displayName:'Paul McKarton',shortName:'PAUL',role:'Singer, bassist and songwriter',description:'Melodic, ambitious and endlessly inventive.',color:'#6d8a72'},
-    george:{id:'george',displayName:'Georgie Harrow',shortName:'GEORGIE',role:'Lead guitarist and songwriter',description:'Thoughtful, curious and quietly determined.',color:'#8a789c'},
-    ringo:{id:'ringo',displayName:'Ricky Starrin',shortName:'RICKY',role:'Drummer and performer',description:'Warm, funny and a natural crowd-pleaser.',color:'#63849a'}
+    john:{id:'john',displayName:'Jack Lenner',shortName:'JACK',role:'Cantante, guitarrista rítmico y compositor',description:'Ingenioso, inquieto y con una imaginación enorme.',color:'#b87945'},
+    paul:{id:'paul',displayName:'Paul McKarton',shortName:'PAUL',role:'Cantante, bajista y compositor',description:'Melódico, ambicioso y siempre creativo.',color:'#6d8a72'},
+    george:{id:'george',displayName:'Georgie Harrow',shortName:'GEORGIE',role:'Guitarrista principal y compositor',description:'Reflexivo, curioso y decidido.',color:'#8a789c'},
+    ringo:{id:'ringo',displayName:'Ricky Starrin',shortName:'RICKY',role:'Baterista y músico de escenario',description:'Cálido, bromista y con facilidad para conectar con la gente.',color:'#63849a'}
   },
   groups:{earlySkiffle:'The Quarry Boys',hamburgBand:'The Beat Brothers',mainBand:'The Silver Beats',fictionalRecordLabel:'Northstar Records'},
   supportingCharacters:{
-    manager:{displayName:'Bernard Epston',role:'Music manager'},
-    producer:{displayName:'George Marlow',role:'Record producer'},
-    earlyDrummer:{displayName:'Peter West',role:'Drummer before Ricky joined'},
-    earlyBassist:{displayName:'Stuart Suttler',role:'Early band member and artist'},
-    photographer:{displayName:'Astrid Kirsch',role:'Photographer and artist'}
+    manager:{displayName:'Bernard Epston',role:'Representante musical'},
+    producer:{displayName:'George Marlow',role:'Productor musical'},
+    earlyDrummer:{displayName:'Peter West',role:'Baterista antes de que se uniera Ricky'},
+    earlyBassist:{displayName:'Stuart Suttler',role:'Integrante inicial del grupo y artista'},
+    photographer:{displayName:'Astrid Kirsch',role:'Fotógrafa y artista'}
   },
   songs:{
     loveMeDo:{id:'love-me-do',displayTitle:'Hold Me Close',era:'1962'},
@@ -79,21 +79,21 @@ export const gameVariables = {
     india:{id:'india',displayName:'India',country:'India'}
   },
   missionTemplates: [
-    { suffix:'meet', title:'A FIRST ENCOUNTER', objective:'Find the instrument needed for the next performance.', targetId:'recordshop', date:'1957-07-06', reward:10 },
-    { suffix:'venue', title:'FIND THE NEXT STAGE', objective:'Visit a historic music venue and learn its story.', targetId:'cavern', date:'1957-1959', reward:15 },
-    { suffix:'streets', title:'THE STREETS REMEMBER', objective:'Explore a landmark street and speak to a local.', targetId:'penny-lane', date:'1957-1960', reward:15 },
-    { suffix:'friends', title:'A NEW FRIEND', objective:'Find another musician and hear their side of the story.', targetId:'casbah', date:'1958-1960', reward:20 },
-    { suffix:'performance', title:'READY FOR THE NEXT SHOW', objective:'Return to the meeting point and prepare for the performance.', targetId:'st-peters', date:'1960-1962', reward:25 }
+    { suffix:'meet', title:'EL PRIMER ENCUENTRO', objective:'Consigue el instrumento que necesitan para su próxima presentación.', targetId:'recordshop', date:'1957-07-06', reward:10 },
+    { suffix:'venue', title:'BUSCA EL SIGUIENTE ESCENARIO', objective:'Visita un local histórico de música y descubre su historia.', targetId:'cavern', date:'1957-1959', reward:15 },
+    { suffix:'streets', title:'LAS CALLES TIENEN MEMORIA', objective:'Recorre una calle emblemática y conversa con alguien del barrio.', targetId:'penny-lane', date:'1957-1960', reward:15 },
+    { suffix:'friends', title:'UN NUEVO AMIGO', objective:'Encuentra a otro músico y escucha su versión de la historia.', targetId:'casbah', date:'1958-1960', reward:20 },
+    { suffix:'performance', title:'LISTOS PARA EL PRÓXIMO SHOW', objective:'Regresa al punto de encuentro y prepárate para la presentación.', targetId:'st-peters', date:'1960-1962', reward:25 }
   ],
   openingMission:{
-    id:'first-encounter',title:'A NEW FACE IN WOOLTON',
-    description:'Find Jack near the church fête and begin the story.',
+    id:'first-encounter',title:'UNA NUEVA CARA EN WOOLTON',
+    description:'Encuentra a Jack cerca de la fiesta de la iglesia y empieza la historia.',
     characterId:'john',placeId:'st-peters-church',historicalDate:'1957-07-06',
-    objectiveLabel:'FIND JACK',rewardCash:0,rewardReputation:0,
+    objectiveLabel:'ENCUENTRA A JACK',rewardCash:0,rewardReputation:0,
     dialogue:[
-      'You made it. The group has a performance coming up, but there is a problem.',
-      'Our guitarist needs a replacement instrument. Can you help us find one before the show?',
-      'Meet me back here when you have news. Welcome to LiverCity.'
+      '¡Llegaste! Tenemos una presentación pronto, pero se nos ha presentado un problema.',
+      'Nuestro guitarrista necesita otro instrumento. ¿Nos das una mano para conseguirlo antes del show?',
+      'Regresa cuando tengas novedades. ¡Bienvenido a LiverCity!'
     ]
   }
 } as const;
