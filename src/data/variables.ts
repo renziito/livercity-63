@@ -61,7 +61,7 @@ export const gameVariables = {
     letItBe:{id:'let-it-be',displayTitle:'Let Things Be',era:'1970'}
   },
   places:{
-    liverpool:{id:'liverpool',displayName:'Liverpool',country:'England'},
+    liverpool:{id:'liverpool',displayName:'LiverCity',realWorldReference:'Liverpool, England'},
     woolton:{id:'woolton',displayName:'Woolton',cityId:'liverpool'},
     stPetersChurch:{id:'st-peters-church',displayName:"St Peter's Church",cityId:'liverpool'},
     pennyLane:{id:'penny-lane-place',displayName:'Penny Lane',cityId:'liverpool'},
@@ -93,7 +93,7 @@ export const gameVariables = {
     dialogue:[
       'You made it. The group has a performance coming up, but there is a problem.',
       'Our guitarist needs a replacement instrument. Can you help us find one before the show?',
-      'Meet me back here when you have news. Welcome to Liverpool.'
+      'Meet me back here when you have news. Welcome to LiverCity.'
     ]
   }
 } as const;
