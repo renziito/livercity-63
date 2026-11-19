@@ -178,16 +178,16 @@ export class Player {
       this.body.position.y = 0.92 + Math.sin(performance.now() * 0.012) * (isRunning ? 0.035 : 0.018);
     }
 
-    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -130, 130);
-    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -115, 115);
+    this.group.position.x = THREE.MathUtils.clamp(this.group.position.x, -5650, 5650);
+    this.group.position.z = THREE.MathUtils.clamp(this.group.position.z, -5000, 5000);
     this.updateCamera(dt);
   }
 
   private moveWithCollisions(deltaX: number, deltaZ: number) {
-    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -130, 130);
+    const nextX = THREE.MathUtils.clamp(this.group.position.x + deltaX, -5650, 5650);
     if (!this.collides(nextX, this.group.position.z)) this.group.position.x = nextX;
 
-    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -115, 115);
+    const nextZ = THREE.MathUtils.clamp(this.group.position.z + deltaZ, -5000, 5000);
     if (!this.collides(this.group.position.x, nextZ)) this.group.position.z = nextZ;
   }
 
