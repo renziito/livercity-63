@@ -13,6 +13,7 @@ export class Player {
   private moveTouch = new Set<MoveKey>();
   private lookPointer: number | null = null;
   private lastX = 0;
+  private interactionLook: THREE.Vector3 | null = null;
   private readonly radius = 0.42;
 
   constructor(
@@ -196,6 +197,16 @@ export class Player {
     );
   }
 
+  lookAtInteraction(target: THREE.Vector3) {
+    const direction = target.clone().sub(this.group.position);
+    direction.y = 0;
+    if (direction.lengthSq() > 0.001) {
+      direction.normalize();
+      this.cameraYaw = Math.atan2(-direction.x, -direction.z);
+      this.interactionLook = target.clone();
+    }
+  }
+
   private updateCamera(dt: number) {
     // Camera orbit follows mouse/touch yaw; it does not get overwritten by strafing.
     const offset = new THREE.Vector3(
@@ -206,7 +217,7 @@ export class Player {
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
     this.camera.position.lerp(desired, 1 - Math.exp(-5 * dt));
-    this.camera.lookAt(target);
+    this.camera.lookAt(this.interactionLook ?? target);
   }
 
   nearest(objects: THREE.Object3D[], range: number) {
