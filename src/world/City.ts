@@ -374,7 +374,6 @@ function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interacta
   hub.name = 'Lime Street Station · Beatles travel gates';
   const frame = material('#253a3c', 0.5);
   const brass = material('#c59a56', 0.55);
-  const glass = new THREE.MeshStandardMaterial({ color: '#73b9b5', emissive: '#1b6664', emissiveIntensity: 0.8, transparent: true, opacity: 0.7, roughness: 0.25 });
   addBox(hub, 0, 2.3, -0.35, 15.8, 0.32, 0.55, brass);
   addBox(hub, -7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
   addBox(hub, 7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
@@ -401,7 +400,7 @@ function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interacta
     const column = index % 4;
     const row = Math.floor(index / 4);
     const x = (column - 1.5) * 3.65;
-    const z = row === 0 ? -0.08 : -0.72;
+    const z = row === 0 ? -0.08 : -3.55;
     const gate = new THREE.Group();
     gate.position.set(x, 0.25, z);
     const gateFrame = material(destination.color, 0.48);
@@ -452,24 +451,27 @@ function makeLandmark(parent: THREE.Group, location: typeof LIVERPOOL_LOCATIONS[
   building.name = 'Landmark: ' + location.name;
   parent.add(building);
 
-  const width = location.id === 'royal-albert-dock' || location.id === 'albert-dock' ? 24 : 13;
-  const depth = location.id === 'royal-albert-dock' || location.id === 'albert-dock' ? 19 : 11;
-  const height = location.id === 'cavern' ? 13 : location.id === 'albert-dock' ? 17 : 9 + (seed % 3) * 2;
-  addBox(building, 0, height / 2, 0, width, height, depth, location.color);
-  addBox(building, 0, height + 0.2, 0, width + 0.6, 0.4, depth + 0.6, '#3e3935');
+  const privateHome = ['ringo-home', 'george-home', 'mendips', 'forthlin-road'].includes(location.id);
+  if (!privateHome) {
+    const width = location.id === 'royal-albert-dock' || location.id === 'albert-dock' ? 24 : 13;
+    const depth = location.id === 'royal-albert-dock' || location.id === 'albert-dock' ? 19 : 11;
+    const height = location.id === 'cavern' ? 13 : location.id === 'albert-dock' ? 17 : 9 + (seed % 3) * 2;
+    addBox(building, 0, height / 2, 0, width, height, depth, location.color);
+    addBox(building, 0, height + 0.2, 0, width + 0.6, 0.4, depth + 0.6, '#3e3935');
 
-  for (let y = 2; y < height - 1; y += 2.8) {
-    for (let xx = -width / 2 + 1.5; xx < width / 2; xx += 2.2) {
-      addBox(building, xx, y, -depth / 2 - 0.08, 0.9, 1.25, 0.12, '#31484b');
+    for (let y = 2; y < height - 1; y += 2.8) {
+      for (let xx = -width / 2 + 1.5; xx < width / 2; xx += 2.2) {
+        addBox(building, xx, y, -depth / 2 - 0.08, 0.9, 1.25, 0.12, '#31484b');
+      }
     }
+    colliders.push(new THREE.Box3(
+      new THREE.Vector3(x - width / 2 - 0.6, 0, z - depth / 2 - 0.6),
+      new THREE.Vector3(x + width / 2 + 0.6, height + 1, z + depth / 2 + 0.6)
+    ));
   }
-  colliders.push(new THREE.Box3(
-    new THREE.Vector3(x - width / 2 - 0.6, 0, z - depth / 2 - 0.6),
-    new THREE.Vector3(x + width / 2 + 0.6, height + 1, z + depth / 2 + 0.6)
-  ));
 
   const marker = new THREE.Group();
-  marker.position.set(x, 0, z + depth / 2 + 5);
+  marker.position.set(x + (privateHome ? 7 : 0), 0, z + (privateHome ? 7 : 16));
   marker.userData.interactionId = location.id;
   marker.userData.locationId = location.id;
   marker.userData.prompt = `EXPLORAR ${location.name.toUpperCase()}`;
