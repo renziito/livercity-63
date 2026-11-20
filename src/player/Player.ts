@@ -9,11 +9,13 @@ export class Player {
   private keys = new Set<string>();
   private enabled = false;
   private cameraYaw = 0;
+  private cameraPitch = 0.58;
   private pointerLockRequested = false;
   private running = false;
   private moveTouch = new Set<MoveKey>();
   private lookPointer: number | null = null;
   private lastX = 0;
+  private lastY = 0;
   private interactionLook: THREE.Vector3 | null = null;
   private interactionLookUntil = 0;
   private readonly radius = 0.42;
@@ -108,6 +110,7 @@ export class Player {
     document.addEventListener('mousemove', (event) => {
       if (this.enabled && document.pointerLockElement === canvas) {
         this.cameraYaw -= event.movementX * 0.003;
+        this.cameraPitch = THREE.MathUtils.clamp(this.cameraPitch + event.movementY * 0.003, -0.42, 1.12);
       }
     });
 
@@ -157,13 +160,16 @@ export class Player {
       event.preventDefault();
       this.lookPointer = event.pointerId;
       this.lastX = event.clientX;
+      this.lastY = event.clientY;
       try { zone.setPointerCapture(event.pointerId); } catch { /* Ignore unsupported capture. */ }
     });
     zone.addEventListener('pointermove', (event: PointerEvent) => {
       if (this.lookPointer !== event.pointerId) return;
       event.preventDefault();
       this.cameraYaw -= (event.clientX - this.lastX) * 0.008;
+      this.cameraPitch = THREE.MathUtils.clamp(this.cameraPitch + (event.clientY - this.lastY) * 0.008, -0.42, 1.12);
       this.lastX = event.clientX;
+      this.lastY = event.clientY;
     });
     const endLook = (event: PointerEvent) => {
       if (this.lookPointer === event.pointerId) this.lookPointer = null;
@@ -198,6 +204,7 @@ export class Player {
     this.group.position.copy(position);
     this.group.rotation.y = 0;
     this.cameraYaw = 0;
+    this.cameraPitch = 0.58;
     this.keys.clear();
     this.moveTouch.clear();
     this.interactionLook = null;
@@ -285,10 +292,11 @@ export class Player {
 
   private updateCamera(dt: number) {
     // Camera orbit follows mouse/touch yaw; it does not get overwritten by strafing.
+    const horizontalDistance = Math.cos(this.cameraPitch) * 6.5;
     const offset = new THREE.Vector3(
-      Math.sin(this.cameraYaw) * 6.5,
-      3.6,
-      Math.cos(this.cameraYaw) * 6.5
+      Math.sin(this.cameraYaw) * horizontalDistance,
+      Math.sin(this.cameraPitch) * 6.5,
+      Math.cos(this.cameraYaw) * horizontalDistance
     );
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
     const desired = target.clone().add(offset);
