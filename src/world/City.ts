@@ -231,7 +231,6 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   spawnPosition.copy(stationSpawn.position);
   console.info('LiverCity safe spawn selected:', stationSpawn.position.toArray());
   createVictorianStation(group, spawnPosition);
-  createTravelHub(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
 
   const roadGeometry = createRibbonGeometry(roads, false);
   const roadMesh = new THREE.Mesh(roadGeometry, material('#34383a'));
@@ -559,10 +558,10 @@ function findStreetSpawn(
 function createTicketBooth(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
   const booth = new THREE.Group();
   booth.name = 'Liverpool station ticket office';
-  const brass = material('#c59a56', 0.55);
-  const dark = material('#24383a');
-  const wood = material('#80543c');
-  const glass = new THREE.MeshStandardMaterial({ color: '#b6c9bd', roughness: 0.18, transparent: true, opacity: 0.48 });
+  const brass = '#c59a56';
+  const dark = '#24383a';
+  const wood = '#80543c';
+  const glass = '#b6c9bd';
   addBox(booth, 0, 1.25, 0, 5.8, 2.5, 2.2, wood);
   addBox(booth, 0, 2.65, 0, 6.2, 0.22, 2.5, brass);
   addBox(booth, 0, 2.95, -0.15, 5.7, 0.38, 2.25, dark);
