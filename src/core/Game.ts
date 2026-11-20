@@ -101,7 +101,7 @@ export class Game {
       this.player.setWalkableSegments(this.city.walkableSegments);
       this.player.setSpawnPosition(this.city.spawnPosition);
       this.ui.closeTravel();
-      this.ui.notify('LIME STREET STATION · PUERTAS DE VIAJE');
+      this.ui.notify('LIME STREET STATION · TAQUILLA');
     });
     window.addEventListener('resize', this.resize);
     window.visualViewport?.addEventListener('resize', this.resize);
