@@ -179,7 +179,7 @@ export class UI {
     for (const destination of LIVERPOOL_TRAVEL_DESTINATIONS) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'travel-door';
+      button.className = 'travel-door ticket-option';
       button.dataset.travelId = destination.id;
       button.style.setProperty('--door-color', destination.color);
       const category = document.createElement('span');
@@ -191,7 +191,7 @@ export class UI {
       subtitle.textContent = destination.subtitle;
       const action = document.createElement('span');
       action.className = 'travel-door-action';
-      action.textContent = 'ENTRAR →';
+      action.textContent = 'COMPRAR TICKET →';
       button.append(category, title, subtitle, action);
       button.addEventListener('click', () => {
         window.dispatchEvent(new CustomEvent('livercity-travel-selected', { detail: { id: destination.id } }));
