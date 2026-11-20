@@ -19,6 +19,11 @@ export class Player {
   private interactionLook: THREE.Vector3 | null = null;
   private interactionLookUntil = 0;
   private readonly radius = 0.42;
+  private readonly cameraRaycaster = new THREE.Raycaster();
+  private readonly cameraDesiredDistance = 6.5;
+  private readonly cameraClearance = 0.38;
+  private readonly cameraFloorHeight = 0.72;
+  private cameraCurrentDistance = 6.5;
 
   constructor(
     private scene: THREE.Scene,
@@ -205,6 +210,7 @@ export class Player {
     this.group.rotation.y = 0;
     this.cameraYaw = 0;
     this.cameraPitch = 0.58;
+    this.cameraCurrentDistance = this.cameraDesiredDistance;
     this.keys.clear();
     this.moveTouch.clear();
     this.interactionLook = null;
@@ -291,16 +297,69 @@ export class Player {
   }
 
   private updateCamera(dt: number) {
-    // Camera orbit follows mouse/touch yaw; it does not get overwritten by strafing.
-    const horizontalDistance = Math.cos(this.cameraPitch) * 6.5;
+    // Orbit camera with collision: walls/buildings pull the camera toward the player.
+    // Horizontal floor surfaces are handled as a vertical height limit instead of
+    // shortening the orbit, so looking down never lets the camera pass below ground.
+    const horizontalDistance = Math.cos(this.cameraPitch) * this.cameraDesiredDistance;
     const offset = new THREE.Vector3(
       Math.sin(this.cameraYaw) * horizontalDistance,
-      Math.sin(this.cameraPitch) * 6.5,
+      Math.sin(this.cameraPitch) * this.cameraDesiredDistance,
       Math.cos(this.cameraYaw) * horizontalDistance
     );
     const target = this.group.position.clone().add(new THREE.Vector3(0, 1.35, 0));
+    const direction = offset.clone().normalize();
     const desired = target.clone().add(offset);
-    this.camera.position.lerp(desired, 1 - Math.exp(-5 * dt));
+    let allowedDistance = this.cameraDesiredDistance;
+
+    this.cameraRaycaster.set(target, direction);
+    this.cameraRaycaster.far = this.cameraDesiredDistance;
+    const intersections = this.cameraRaycaster.intersectObjects(this.scene.children, true);
+
+    for (const hit of intersections) {
+      // Never collide with the player model itself.
+      let ancestor: THREE.Object3D | null = hit.object;
+      let belongsToPlayer = false;
+      while (ancestor) {
+        if (ancestor === this.group) {
+          belongsToPlayer = true;
+          break;
+        }
+        ancestor = ancestor.parent;
+      }
+      if (belongsToPlayer || !hit.face) continue;
+
+      const normalMatrix = new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld);
+      const worldNormal = hit.face.normal.clone().applyMatrix3(normalMatrix).normalize();
+
+      // Floors: keep the camera above the ground. Roofs/ceilings: do not pass
+      // through the underside; stop just before the horizontal surface.
+      if (Math.abs(worldNormal.y) >= 0.72) {
+        if (worldNormal.y < -0.72 && direction.y > 0.001) {
+          allowedDistance = Math.min(allowedDistance, Math.max(0.15, hit.distance - this.cameraClearance));
+        }
+        continue;
+      }
+
+      // Walls, facades, pillars, props and other non-horizontal geometry.
+      allowedDistance = Math.min(allowedDistance, Math.max(0.15, hit.distance - this.cameraClearance));
+      break;
+    }
+
+    // Do not let the camera dip through the ground plane, even when the ray
+    // does not hit a horizontal surface (for example at the edge of a map).
+    if (direction.y < -0.001) {
+      const floorDistance = (target.y - this.cameraFloorHeight) / -direction.y;
+      if (floorDistance > 0) allowedDistance = Math.min(allowedDistance, floorDistance);
+    }
+
+    this.cameraRaycaster.far = allowedDistance;
+    const distanceRate = allowedDistance < this.cameraCurrentDistance ? 18 : 5;
+    this.cameraCurrentDistance += (allowedDistance - this.cameraCurrentDistance) * (1 - Math.exp(-distanceRate * dt));
+    const finalDistance = Math.min(this.cameraCurrentDistance, allowedDistance + 0.02);
+    const cameraPosition = target.clone().addScaledVector(direction, finalDistance);
+    cameraPosition.y = Math.max(this.cameraFloorHeight, cameraPosition.y);
+    this.camera.position.copy(cameraPosition);
+
     const focus = this.interactionLook && performance.now() < this.interactionLookUntil ? this.interactionLook : target;
     if (focus === target) this.interactionLook = null;
     this.camera.lookAt(focus);
