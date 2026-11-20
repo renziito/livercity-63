@@ -652,7 +652,8 @@ export function buildCity() {
   const colliders: THREE.Box3[] = [];
   const walkableSegments: WalkableSegment[] = [];
   const buildingFootprints: { x: number; z: number }[][] = [];
-  const spawnPosition = new THREE.Vector3();\n  let moveTicketBooth: (position: THREE.Vector3) => void = () => undefined;
+  const spawnPosition = new THREE.Vector3();
+  let moveTicketBooth: (position: THREE.Vector3) => void = () => undefined;
 
   const groundMaterial = material('#8a9183');
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_SIZE.width, WORLD_SIZE.depth), groundMaterial);
@@ -671,7 +672,17 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables).then(() => {\n    moveTicketBooth = createTicketBooth(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);\n    // The station is a bounded rectangular hub; leaving it is done by buying a ticket.\n    const halfWidth = 48, halfDepth = 38, wallHeight = 5, wall = 1.4;\n    colliders.push(\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z-halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z-halfDepth+wall/2)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z+halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z+halfDepth+wall/2)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x-halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x+halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x+halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth))\n    );\n  });
+  const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables).then(() => {
+    moveTicketBooth = createTicketBooth(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
+    // The station is a bounded rectangular hub; leaving it is done by buying a ticket.
+    const halfWidth = 48, halfDepth = 38, wallHeight = 5, wall = 1.4;
+    colliders.push(
+      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z-halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z-halfDepth+wall/2)),
+      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z+halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z+halfDepth+wall/2)),
+      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x-halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth)),
+      new THREE.Box3(new THREE.Vector3(spawnPosition.x+halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x+halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth))
+    );
+  });
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
@@ -716,8 +727,10 @@ export function buildCity() {
       const midZ = (segment.az + segment.bz) / 2;
       return Math.hypot(midX - spawn.position.x, midZ - spawn.position.z) <= destination.radius + segment.halfWidth;
     });
-    moveTicketBooth(spawn.position.clone().add(new THREE.Vector3(0, 0, -4)));\n    return { position: spawn.position, walkableSegments: activeSegments.length ? activeSegments : zoneSegments, destination };
+    moveTicketBooth(spawn.position.clone().add(new THREE.Vector3(0, 0, -4)));
+    return { position: spawn.position, walkableSegments: activeSegments.length ? activeSegments : zoneSegments, destination };
   };
 
-  const returnToStation = () => moveTicketBooth(spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)));\n  return { group, interactables, colliders, walkableSegments, spawnPosition, ready, travelTo, returnToStation };
+  const returnToStation = () => moveTicketBooth(spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)));
+  return { group, interactables, colliders, walkableSegments, spawnPosition, ready, travelTo, returnToStation };
 }
