@@ -182,7 +182,7 @@ function createBuildingGeometry(way: OSMWay, index: number) {
   };
 }
 
-async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], spawnPosition: THREE.Vector3, interactables: THREE.Object3D[]) {
+async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], walkableSegments: WalkableSegment[], buildingFootprints: { x: number; z: number }[][], spawnPosition: THREE.Vector3, interactables: THREE.Object3D[]) {
   const appBasePath = window.location.pathname.startsWith('/livercity-63/') ? '/livercity-63/' : '/';
   const dataUrl = new URL(`${appBasePath}data/liverpool-osm.json`, window.location.origin);
   const response = await fetch(dataUrl);
@@ -221,7 +221,7 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   if (!walkableSegments.length) throw new Error('OpenStreetMap no contiene calles peatonales transitables.');
   // Begin in central Liverpool, at a real mapped street close to Lime Street.
   const requestedStart = geoToWorld({ lat: 53.40730, lon: -2.97770 });
-  const buildingFootprints = buildings.map(way => way.coordinates.slice(0, -1).map(([lon, lat]) => geoToWorld({ lon, lat })));
+  buildingFootprints.push(...buildings.map(way => way.coordinates.slice(0, -1).map(([lon, lat]) => geoToWorld({ lon, lat }))));
   const stationSpawn = findStreetSpawn(
     new THREE.Vector3(requestedStart.x, 0, requestedStart.z),
     walkableSegments,
@@ -643,6 +643,7 @@ export function buildCity() {
   const interactables: THREE.Object3D[] = [];
   const colliders: THREE.Box3[] = [];
   const walkableSegments: WalkableSegment[] = [];
+  const buildingFootprints: { x: number; z: number }[][] = [];
   const spawnPosition = new THREE.Vector3();
 
   const groundMaterial = material('#8a9183');
@@ -662,7 +663,7 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders, walkableSegments, spawnPosition, interactables);
+  const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables);
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
