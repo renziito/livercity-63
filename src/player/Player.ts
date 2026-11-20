@@ -175,6 +175,19 @@ export class Player {
 
   setEnabled(value: boolean) {
     this.enabled = value;
+
+    if (!value) {
+      // Release the captured mouse whenever a modal/menu opens.
+      // This restores the normal cursor so travel destinations and UI buttons
+      // can be clicked immediately without pressing Escape first.
+      this.keys.clear();
+      this.moveTouch.clear();
+      this.running = false;
+      const canvas = document.getElementById('game') as HTMLCanvasElement | null;
+      if (canvas && document.pointerLockElement === canvas) {
+        document.exitPointerLock?.();
+      }
+    }
   }
 
   setWalkableSegments(segments: WalkableSegment[]) {
