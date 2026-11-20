@@ -556,80 +556,51 @@ function findStreetSpawn(
   return { position: best.position, nearest: best.nearest };
 }
 
-function createTravelHub(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
-  const hub = new THREE.Group();
-  hub.position.copy(position);
-  hub.name = 'Lime Street Station · Beatles travel gates';
-  const frame = '#253a3c';
-  const brass = '#c59a56';
-  addBox(hub, 0, 2.3, -0.35, 15.8, 0.32, 0.55, brass);
-  addBox(hub, -7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
-  addBox(hub, 7.6, 1.65, -0.35, 0.32, 3.6, 0.55, brass);
-  addBox(hub, 0, 0.12, -0.35, 15.8, 0.24, 0.55, frame);
+function createTicketBooth(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
+  const booth = new THREE.Group();
+  booth.name = 'Liverpool station ticket office';
+  const brass = material('#c59a56', 0.55);
+  const dark = material('#24383a');
+  const wood = material('#80543c');
+  const glass = new THREE.MeshStandardMaterial({ color: '#b6c9bd', roughness: 0.18, transparent: true, opacity: 0.48 });
+  addBox(booth, 0, 1.25, 0, 5.8, 2.5, 2.2, wood);
+  addBox(booth, 0, 2.65, 0, 6.2, 0.22, 2.5, brass);
+  addBox(booth, 0, 2.95, -0.15, 5.7, 0.38, 2.25, dark);
+  addBox(booth, 0, 1.85, 1.13, 2.25, 0.8, 0.08, glass);
+  addBox(booth, 0, 1.28, 1.2, 2.55, 0.12, 0.42, brass);
+  addBox(booth, -2.45, 1.55, 0.2, 0.16, 2.9, 0.16, brass);
+  addBox(booth, 2.45, 1.55, 0.2, 0.16, 2.9, 0.16, brass);
 
-  const titleCanvas = document.createElement('canvas');
-  titleCanvas.width = 1024;
-  titleCanvas.height = 180;
-  const ctx = titleCanvas.getContext('2d');
+  const signCanvas = document.createElement('canvas');
+  signCanvas.width = 768; signCanvas.height = 180;
+  const ctx = signCanvas.getContext('2d');
   if (ctx) {
-    ctx.fillStyle = '#17262a'; ctx.fillRect(0, 0, 1024, 180);
-    ctx.fillStyle = '#e7bd70'; ctx.font = 'bold 62px Georgia'; ctx.textAlign = 'center';
-    ctx.fillText('LIVERPOOL · BEATLES GATES', 512, 78);
-    ctx.fillStyle = '#d7d0bd'; ctx.font = '28px Arial';
-    ctx.fillText('CHOOSE YOUR NEXT DESTINATION', 512, 130);
+    ctx.fillStyle = '#17272b'; ctx.fillRect(0, 0, 768, 180);
+    ctx.strokeStyle = '#d0aa68'; ctx.lineWidth = 8; ctx.strokeRect(8, 8, 752, 164);
+    ctx.fillStyle = '#f2e6c9'; ctx.font = 'bold 70px Georgia'; ctx.textAlign = 'center';
+    ctx.fillText('TICKETS', 384, 105);
+    ctx.fillStyle = '#d9b875'; ctx.font = '25px Arial';
+    ctx.fillText('TAQUILLA · LIVERPOOL', 384, 148);
   }
-  const titleTexture = new THREE.CanvasTexture(titleCanvas);
-  const title = new THREE.Mesh(new THREE.PlaneGeometry(8.8, 1.55), new THREE.MeshBasicMaterial({ map: titleTexture, transparent: true }));
-  title.position.set(0, 4.1, -0.02);
-  hub.add(title);
-
-  const gates = LIVERPOOL_TRAVEL_DESTINATIONS;
-  gates.forEach((destination, index) => {
-    const column = index % 4;
-    const row = Math.floor(index / 4);
-    const x = (column - 1.5) * 3.65;
-    const z = row === 0 ? -0.08 : -3.55;
-    const gate = new THREE.Group();
-    gate.position.set(x, 0.25, z);
-    const gateFrame = destination.color;
-    const glow = new THREE.MeshStandardMaterial({ color: destination.color, emissive: destination.color, emissiveIntensity: 0.42, transparent: true, opacity: 0.72, roughness: 0.25 });
-    addBox(gate, -1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
-    addBox(gate, 1.12, 1.35, 0, 0.18, 2.7, 0.24, gateFrame);
-    addBox(gate, 0, 2.7, 0, 2.42, 0.18, 0.24, gateFrame);
-    const portal = new THREE.Mesh(new THREE.PlaneGeometry(2.05, 2.35), glow);
-    portal.position.set(0, 1.35, 0.13);
-    gate.add(portal);
-    addBox(gate, 0, 0.13, 0, 2.45, 0.22, 0.45, brass);
-    const labelCanvas = document.createElement('canvas');
-    labelCanvas.width = 512; labelCanvas.height = 128;
-    const labelContext = labelCanvas.getContext('2d');
-    if (labelContext) {
-      labelContext.fillStyle = '#17262a'; labelContext.fillRect(0, 0, 512, 128);
-      labelContext.fillStyle = '#f5e9cf'; labelContext.font = 'bold 30px Arial'; labelContext.textAlign = 'center';
-      labelContext.fillText(destination.label.toUpperCase(), 256, 52);
-      labelContext.fillStyle = '#d8bd87'; labelContext.font = '18px Arial';
-      labelContext.fillText(destination.category, 256, 88);
-    }
-    const labelTexture = new THREE.CanvasTexture(labelCanvas);
-    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.62), new THREE.MeshBasicMaterial({ map: labelTexture }));
-    sign.position.set(0, 3.18, 0.02);
-    gate.add(sign);
-    hub.add(gate);
-  });
-
-  const beacon = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.09, 10, 36), new THREE.MeshBasicMaterial({ color: '#e6b45e' }));
-  beacon.rotation.x = Math.PI / 2;
-  beacon.position.set(0, 0.12, 2.25);
-  hub.add(beacon);
-  parent.add(hub);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 1.12), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(signCanvas) }));
+  sign.position.set(0, 3.15, 1.28);
+  booth.add(sign);
+  booth.position.copy(position);
+  parent.add(booth);
 
   const trigger = new THREE.Group();
-  trigger.position.copy(position).add(new THREE.Vector3(0, 0, 2.5));
+  trigger.position.copy(position).add(new THREE.Vector3(0, 0, 3.1));
   trigger.userData.interactionId = 'travel-hub';
-  trigger.userData.prompt = 'ABRIR PUERTAS DE VIAJE · LIME STREET STATION';
-  trigger.userData.lookAt = position.clone().add(new THREE.Vector3(0, 2, 0));
+  trigger.userData.prompt = 'COMPRAR TICKET · TAQUILLA';
+  trigger.userData.lookAt = position.clone().add(new THREE.Vector3(0, 1.8, 0.8));
   parent.add(trigger);
   interactables.push(trigger);
+
+  return (nextPosition: THREE.Vector3) => {
+    booth.position.copy(nextPosition);
+    trigger.position.copy(nextPosition).add(new THREE.Vector3(0, 0, 3.1));
+    trigger.userData.lookAt = nextPosition.clone().add(new THREE.Vector3(0, 1.8, 0.8));
+  };
 }
 
 function makeLandmark(parent: THREE.Group, location: typeof LIVERPOOL_LOCATIONS[number], seed: number, colliders: THREE.Box3[]) {
@@ -681,7 +652,7 @@ export function buildCity() {
   const colliders: THREE.Box3[] = [];
   const walkableSegments: WalkableSegment[] = [];
   const buildingFootprints: { x: number; z: number }[][] = [];
-  const spawnPosition = new THREE.Vector3();
+  const spawnPosition = new THREE.Vector3();\n  let moveTicketBooth: (position: THREE.Vector3) => void = () => undefined;
 
   const groundMaterial = material('#8a9183');
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_SIZE.width, WORLD_SIZE.depth), groundMaterial);
@@ -700,7 +671,7 @@ export function buildCity() {
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
-  const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables);
+  const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables).then(() => {\n    moveTicketBooth = createTicketBooth(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);\n    // The station is a bounded rectangular hub; leaving it is done by buying a ticket.\n    const halfWidth = 48, halfDepth = 38, wallHeight = 5, wall = 1.4;\n    colliders.push(\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z-halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z-halfDepth+wall/2)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z+halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z+halfDepth+wall/2)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x-halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth)),\n      new THREE.Box3(new THREE.Vector3(spawnPosition.x+halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x+halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth))\n    );\n  });
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
     interactables.push(makeLandmark(group, location, index, colliders));
@@ -745,8 +716,8 @@ export function buildCity() {
       const midZ = (segment.az + segment.bz) / 2;
       return Math.hypot(midX - spawn.position.x, midZ - spawn.position.z) <= destination.radius + segment.halfWidth;
     });
-    return { position: spawn.position, walkableSegments: activeSegments.length ? activeSegments : zoneSegments, destination };
+    moveTicketBooth(spawn.position.clone().add(new THREE.Vector3(0, 0, -4)));\n    return { position: spawn.position, walkableSegments: activeSegments.length ? activeSegments : zoneSegments, destination };
   };
 
-  return { group, interactables, colliders, walkableSegments, spawnPosition, ready, travelTo };
+  const returnToStation = () => moveTicketBooth(spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)));\n  return { group, interactables, colliders, walkableSegments, spawnPosition, ready, travelTo, returnToStation };
 }
