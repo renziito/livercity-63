@@ -472,16 +472,49 @@ function findStreetSpawn(
   buildingFootprints: { x: number; z: number }[][] = [],
   colliders: THREE.Box3[] = []
 ) {
+  // Restrict the expensive footprint checks to buildings around the destination.
+  // The full Liverpool extract contains thousands of polygons; checking every
+  // polygon for every candidate freezes the browser during world initialization.
+  const searchRadius = 85;
+  const nearbyFootprints = buildingFootprints.flatMap((polygon) => {
+    if (polygon.length < 3) return [];
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const point of polygon) {
+      minX = Math.min(minX, point.x); maxX = Math.max(maxX, point.x);
+      minZ = Math.min(minZ, point.z); maxZ = Math.max(maxZ, point.z);
+    }
+    if (
+      maxX < target.x - searchRadius || minX > target.x + searchRadius ||
+      maxZ < target.z - searchRadius || minZ > target.z + searchRadius
+    ) return [];
+    return [{ polygon, minX, maxX, minZ, maxZ }];
+  });
+
+  // Only the closest street segments can produce a useful arrival point.
+  // This bounds work even in central Liverpool, where OSM has dense street data.
+  const nearestSegments = segments
+    .map(segment => {
+      const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
+      const lengthSq = dx * dx + dz * dz;
+      if (lengthSq < 0.01) return null;
+      const t = THREE.MathUtils.clamp(((target.x - segment.ax) * dx + (target.z - segment.az) * dz) / lengthSq, 0, 1);
+      const x = segment.ax + dx * t, z = segment.az + dz * t;
+      return { segment, distance: Math.hypot(target.x - x, target.z - z) };
+    })
+    .filter((item): item is { segment: WalkableSegment; distance: number } => item !== null)
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 48);
+
   const candidates: {
     position: THREE.Vector3;
     distance: number;
     nearest: { x: number; z: number; distance: number; nx: number; nz: number; tx: number; tz: number; halfWidth: number };
   }[] = [];
 
-  for (const segment of segments) {
+  for (const item of nearestSegments) {
+    const segment = item.segment;
     const dx = segment.bx - segment.ax, dz = segment.bz - segment.az;
     const lengthSq = dx * dx + dz * dz;
-    if (lengthSq < 0.01) continue;
     const length = Math.sqrt(lengthSq);
     const t = THREE.MathUtils.clamp(((target.x - segment.ax) * dx + (target.z - segment.az) * dz) / lengthSq, 0, 1);
     const x = segment.ax + dx * t, z = segment.az + dz * t;
@@ -497,10 +530,14 @@ function findStreetSpawn(
         for (const along of [-3, -1.5, 0, 1.5, 3]) {
           const candidateX = x + nx * lateral * side + tx * along;
           const candidateZ = z + nz * lateral * side + tz * along;
-          const blockedByBuilding = buildingFootprints.some(polygon =>
-            pointInFootprint(candidateX, candidateZ, polygon) ||
-            distanceToFootprintEdge(candidateX, candidateZ, polygon) < 1.15
-          );
+          const blockedByBuilding = nearbyFootprints.some(footprint => {
+            if (
+              candidateX < footprint.minX - 1.15 || candidateX > footprint.maxX + 1.15 ||
+              candidateZ < footprint.minZ - 1.15 || candidateZ > footprint.maxZ + 1.15
+            ) return false;
+            return pointInFootprint(candidateX, candidateZ, footprint.polygon) ||
+              distanceToFootprintEdge(candidateX, candidateZ, footprint.polygon) < 1.15;
+          });
           const blockedByLandmark = colliders.some(box =>
             candidateX > box.min.x - 0.8 && candidateX < box.max.x + 0.8 &&
             candidateZ > box.min.z - 0.8 && candidateZ < box.max.z + 0.8
