@@ -222,15 +222,17 @@ async function loadOpenStreetMap(group: THREE.Group, colliders: THREE.Box3[], wa
   // Begin in central Liverpool, at a real mapped street close to Lime Street.
   const requestedStart = geoToWorld({ lat: 53.40730, lon: -2.97770 });
   buildingFootprints.push(...buildings.map(way => way.coordinates.slice(0, -1).map(([lon, lat]) => geoToWorld({ lon, lat }))));
-  const stationSpawn = findStreetSpawn(
-    new THREE.Vector3(requestedStart.x, 0, requestedStart.z),
-    walkableSegments,
-    buildingFootprints,
-    colliders
-  );
-  spawnPosition.copy(stationSpawn.position);
-  console.info('LiverCity safe spawn selected:', stationSpawn.position.toArray());
-  createVictorianStation(group, spawnPosition);
+  const stationCenter = new THREE.Vector3(requestedStart.x, 0, requestedStart.z);
+  createVictorianStation(group, stationCenter);
+  // Spawn on the forecourt, directly in front of Lime Street Station's main entrance.
+  spawnPosition.copy(stationCenter).add(new THREE.Vector3(0, 0, 16));
+  console.info('LiverCity station forecourt spawn:', spawnPosition.toArray());
+  window.dispatchEvent(new CustomEvent('livercity-world-ready', {
+    detail: { roads: roads.length, buildings: buildings.length }
+  }));
+  // Keep the complete OSM navigation/footprint data for future destinations,
+  // but do not render the surrounding city while the player is in the station hub.
+  return;
 
   const roadGeometry = createRibbonGeometry(roads, false);
   const roadMesh = new THREE.Mesh(roadGeometry, material('#34383a'));
@@ -315,7 +317,7 @@ function createVictorianStation(parent: THREE.Group, spawn: THREE.Vector3) {
   // placed in front of the player's Lime Street arrival point.
   const station = new THREE.Group();
   station.name = 'Lime Street Station · Victorian railway frontage';
-  station.position.set(spawn.x, 0, spawn.z - 30);
+  station.position.set(spawn.x, 0, spawn.z);
 
   const brick = material('#8f5140');
   const darkBrick = material('#653b32');
@@ -555,6 +557,27 @@ function findStreetSpawn(
   return { position: best.position, nearest: best.nearest };
 }
 
+function createStationEnclosure(parent: THREE.Group, center: THREE.Vector3, colliders: THREE.Box3[]) {
+  const width = 100, depth = 80, height = 30, thickness = 1.6;
+  const wallMaterial = material('#74665a');
+  const addWall = (x: number, z: number, w: number, d: number) => {
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(w, height, d), wallMaterial);
+    wall.position.set(x, height / 2, z);
+    wall.receiveShadow = true;
+    wall.castShadow = true;
+    wall.name = 'Lime Street station boundary wall';
+    parent.add(wall);
+    colliders.push(new THREE.Box3(
+      new THREE.Vector3(x - w / 2, 0, z - d / 2),
+      new THREE.Vector3(x + w / 2, height, z + d / 2)
+    ));
+  };
+  addWall(center.x, center.z - depth / 2, width + thickness * 2, thickness);
+  addWall(center.x, center.z + depth / 2, width + thickness * 2, thickness);
+  addWall(center.x - width / 2, center.z, thickness, depth);
+  addWall(center.x + width / 2, center.z, thickness, depth);
+}
+
 function createTicketBooth(parent: THREE.Group, position: THREE.Vector3, interactables: THREE.Object3D[]) {
   const booth = new THREE.Group();
   booth.name = 'Liverpool station ticket office';
@@ -655,32 +678,19 @@ export function buildCity() {
   let moveTicketBooth: (position: THREE.Vector3) => void = () => undefined;
 
   const groundMaterial = material('#8a9183');
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_SIZE.width, WORLD_SIZE.depth), groundMaterial);
-  const loader = new THREE.TextureLoader();
-  loader.setCrossOrigin('anonymous');
-  loader.load(LIVERPOOL_SATELLITE_URL, texture => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
-    groundMaterial.map = texture;
-    groundMaterial.color.set('#ffffff');
-    groundMaterial.needsUpdate = true;
-  }, undefined, () => console.warn('LiverCity: imagen satelital no disponible.'));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 80), groundMaterial);
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.12;
   ground.receiveShadow = true;
+  ground.name = 'Lime Street station rectangular forecourt';
   group.add(ground);
 
   // Real road centre-lines and building footprints are downloaded at build time from OSM.
   const ready = loadOpenStreetMap(group, colliders, walkableSegments, buildingFootprints, spawnPosition, interactables).then(() => {
+    const stationCenter = spawnPosition.clone().add(new THREE.Vector3(0, 0, -16));
+    ground.position.set(stationCenter.x, -0.12, stationCenter.z);
+    createStationEnclosure(group, stationCenter, colliders);
     moveTicketBooth = createTicketBooth(group, spawnPosition.clone().add(new THREE.Vector3(0, 0, -4)), interactables);
-    // The station is a bounded rectangular hub; leaving it is done by buying a ticket.
-    const halfWidth = 48, halfDepth = 38, wallHeight = 5, wall = 1.4;
-    colliders.push(
-      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z-halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z-halfDepth+wall/2)),
-      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth,0,spawnPosition.z+halfDepth-wall/2),new THREE.Vector3(spawnPosition.x+halfWidth,wallHeight,spawnPosition.z+halfDepth+wall/2)),
-      new THREE.Box3(new THREE.Vector3(spawnPosition.x-halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x-halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth)),
-      new THREE.Box3(new THREE.Vector3(spawnPosition.x+halfWidth-wall/2,0,spawnPosition.z-halfDepth),new THREE.Vector3(spawnPosition.x+halfWidth+wall/2,wallHeight,spawnPosition.z+halfDepth))
-    );
   });
 
   LIVERPOOL_LOCATIONS.forEach((location, index) => {
